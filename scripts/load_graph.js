@@ -13,7 +13,7 @@
     return;
   }
 
-  const rawUrl = 'https://raw.githubusercontent.com/0xh1tesh/desmos-binary-singularity-merger/main/desmos_state.json';
+  const rawUrl = 'https://raw.githubusercontent.com/0xh1tesh/binary-singularity-simulation/main/desmos_state.json';
   try {
     console.log('Fetching simulation state from GitHub...');
     const res = await fetch(rawUrl);

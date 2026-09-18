@@ -115,7 +115,7 @@ The entire simulation is unified under a single master simulation clock $T$:
 ## 📁 Repository Structure
 
 ```
-desmos-binary-singularity-merger/
+binary-singularity-simulation/
 ├── README.md                # Project documentation, visual gallery, and overview
 ├── desmos_state.json        # Serialized Desmos 3D calculator state
 ├── .gitignore
