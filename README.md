@@ -1,35 +1,6 @@
-# 🌌 Desmos 3D Binary Singularity Merger Simulation
+NOTE: THIS IS STILL UNDER HEAVY DEVELOPEMENT
 
-[![Desmos 3D](https://img.shields.io/badge/Platform-Desmos%203D-2f72dc?logo=desmos&logoColor=white)](https://www.desmos.com/3d)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status](https://img.shields.io/badge/Status-Complete%20Prototype-success)](#)
-
-An interactive mathematical and physics visualization of a **compact binary singularity inspiral, coalescence, and gravitational-wave spacetime perturbation**, rendered natively inside the **Desmos 3D Graphing Calculator**.
-
-> **Note on Scientific Framing**: This project is an interactive mathematical visualization inspired by General Relativity. It models binary inspiral kinematics, dynamical curvature deformation, and quadrupolar wave propagation using controlled mathematical approximations rather than direct numerical solutions to the full Einstein field equations.
-
----
-
-## 📸 Simulation Gallery
-
-| 1. Early Orbit ($T=1.0$) | 2. Inspiral ($T=7.0$) |
-| :---: | :---: |
-| ![Early Orbit](./assets/screenshots/state_1_early_orbit.png) | ![Inspiral](./assets/screenshots/state_2_inspiral.png) |
-| *Two widely separated funnels orbiting in a calm spacetime grid.* | *Separation rapidly contracts; frequency chirps as objects accelerate.* |
-
-| 3. Merger ($T=10.0$) | 4. Post-Merger Wavefront ($T=12.2$) |
-| :---: | :---: |
-| ![Merger](./assets/screenshots/state_3_merger.png) | ![Post-Merger Ripple](./assets/screenshots/state_4_post_merger_ripple.png) |
-| *Curvature wells coalesce into a single deep central funnel; blast begins.* | *Large annular gravitational ripple propagates outward across the grid.* |
-
-| 5. Post-Merger Ringdown ($T=15.0$) | Refined Aesthetics ($T=6.5$) |
-| :---: | :---: |
-| ![Ringdown](./assets/screenshots/state_5_ringdown.png) | ![Refined Visuals](./assets/screenshots/slate_grey_trails_t6_5.png) |
-| *Wavefront attenuates towards grid boundaries, leaving a settled remnant well.* | *Thin 1.0 slate grey grid, dual spiral orbital trails, and distinct horizon rings.* |
-
----
-
-## 🚀 How to Run in Desmos 3D
+##  How to Run in Desmos 3D
 
 1. Open **[desmos.com/3d](https://www.desmos.com/3d)** in your browser.
 2. Open Developer Tools Console (`F12` or `Ctrl+Shift+I` / `Cmd+Option+I`).
@@ -41,7 +12,7 @@ An interactive mathematical and physics visualization of a **compact binary sing
 
 ---
 
-## 🧮 Mathematical Model & Dynamic Hierarchy
+##  Mathematical Model & Dynamic Hierarchy
 
 The entire simulation is unified under a single master simulation clock $T$:
 
@@ -112,7 +83,7 @@ The entire simulation is unified under a single master simulation clock $T$:
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 binary-singularity-simulation/
@@ -133,7 +104,7 @@ binary-singularity-simulation/
 
 ---
 
-## 📜 Documentation Links
+##  Documentation Links
 
 - Detailed Mathematical Formulations: [`docs/MODEL.md`](./docs/MODEL.md)
 - Complete Desmos LaTeX Registry: [`docs/EQUATIONS.md`](./docs/EQUATIONS.md)
@@ -142,6 +113,6 @@ binary-singularity-simulation/
 
 ---
 
-## 👨‍💻 Author
+##  Author
 
 **0xh1tesh** ([GitHub Profile](https://github.com/0xh1tesh))
