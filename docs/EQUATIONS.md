@@ -35,7 +35,10 @@
 | `func_zgrav` | `z_g = -A M_1 / r_1^1.4 - A M_2 / r_2^1.4` | Two wells that become one at `R = 0` |
 | `func_ur` | `u_r = T - T_m - r_c / v_w` | **Retarded time**: zero on the wavefront, so the wave is tied to the merger |
 | `func_zwave` | `z_w = S * env(u_r) * (1 + 0.6 cos(2(atan2(y,x) - phi_0(T_m)))) * sin(-k v_w u_r) / (1 + 0.35 r_c)` where `env = exp(-u_r^2/0.5)` for `u_r<0`, `exp(-u_r/sigma)` otherwise | Merger-generated, quadrupolar, ringing-down wave |
-| `func_ztotal` | `Z = z_g + z_w` | Height field used by the grid |
+| `func_zinsp` | `z_i = {0 < T_r < T_m : 0.35 S (T_r/T_m)^3 cos(2 atan2(y,x) - 2 phi_0(T_r)) / (1 + 0.35 r_c), 0}` with `T_r = T - r_c/v_w` | Weak two-arm inspiral spiral, wound by the retarded orbital phase; grows toward the merger (phenomenological) |
+| `func_ztotal` | `Z = z_g + z_w + z_i` | Height field used by the grid |
+
+In the Desmos editor the expressions are grouped into folders: Controls, Model, Spacetime fabric, Optional markers (ids unchanged), with a title note `note_title` at the top.
 
 ## Fabric and markers
 

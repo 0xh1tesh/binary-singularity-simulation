@@ -34,6 +34,6 @@ Checkpoints are in `assets/screenshots/checkpoints/`.
 
 `node scripts/render_checkpoints.js` loads `desmos_state.json` into desmos.com/3d in headless Chromium (Playwright), sets `T`, reports any expression errors and saves a screenshot per checkpoint. It uses no account or credentials.
 
-## Limitations of the Desmos camera
+## Camera
 
-The camera angle is not part of the exported state in the way we can set it, so the default view is Desmos's own. Rotate with the mouse. A lower angle shows the ripple heights best.
+The default view is stored in the state as `graph.worldRotation3D`: a column-major 3x3 rotation that must be horizon-level (Desmos discards it otherwise). `scripts/build_state.py` builds it from a yaw and elevation (`world_rotation(yaw=30, elev=18)`). A low elevation shows funnel depth and ripple heights; about 50 degrees shows the ring and quadrupole pattern from above. The viewport is x, y in [-6.8, 6.8] and z in [-4.8, 4.8].

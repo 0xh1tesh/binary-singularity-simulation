@@ -73,5 +73,64 @@ s["graph"]["__v12ViewportLatexStash"] = {k: str(v) for k, v in vp.items()}
 s["graph"].update(showBox3D=False, showPlane3D=False, showAxis3D=False,
                   axis3D=[False, False, False], showGrid=False)
 
+# --- inspiral radiation: a weak two-arm spiral that grows toward the merger ---
+# Uses the retarded phase phi_0(T - r/v_w), so the arms are wound by the orbit itself.
+if "func_zinsp" not in ex:
+    zin = {"type": "expression", "id": "func_zinsp", "color": "#388c46", "hidden": True,
+           "latex": (r"z_{i}\left(x,y,T\right)=\left\{0<T-\frac{r_{c}\left(x,y\right)}{v_{w}}<T_{m}:"
+                     r"0.35\cdot S\cdot\left(\frac{T-\frac{r_{c}\left(x,y\right)}{v_{w}}}{T_{m}}\right)^{3}"
+                     r"\cdot\frac{\cos\left(2\arctan\left(y,x\right)-2\phi_{0}\left(T-\frac{r_{c}\left(x,y\right)}{v_{w}}\right)\right)}"
+                     r"{1+0.35\cdot r_{c}\left(x,y\right)},0\right\}")}
+    lst.insert(lst.index(ex["func_ztotal"]), zin)
+    ex["func_zinsp"] = zin
+latex("func_ztotal", r"Z\left(x,y,T\right)=z_{g}\left(x,y,T\right)+z_{w}\left(x,y,T\right)+z_{i}\left(x,y,T\right)")
+
+# --- camera: horizon-level world rotation (column-major 3x3), yaw/elevation in degrees
+import math
+def world_rotation(yaw, elev):
+    cy, sy = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+    ce, se = math.cos(math.radians(elev)), math.sin(math.radians(elev))
+    r0, r1, r2 = (-ce * sy, ce * cy, -se), (-cy, -sy, 0.0), (-se * sy, se * cy, ce)
+    return [round(v, 6) for v in (r0[0], r1[0], r2[0], r0[1], r1[1], r2[1], r0[2], r1[2], r2[2])]
+
+s["graph"]["worldRotation3D"] = world_rotation(yaw=30, elev=18)
+vp.update(xmin=-6.8, xmax=6.8, ymin=-6.8, ymax=6.8, zmin=-4.8, zmax=4.8)
+s["graph"]["viewport"] = vp
+s["graph"]["__v12ViewportLatexStash"] = {k: str(v) for k, v in vp.items()}
+
+# --- organisation: title note + folders (ids of model expressions unchanged) --
+def folder(fid, title, collapsed):
+    return {"type": "folder", "id": fid, "title": title, "collapsed": collapsed}
+
+groups = [
+    ("f_controls", "Controls", False,
+     ["time_T", "time_Tm", "rad_R0", "mass_m1", "mass_m2", "amp_A", "scale_S", "wave_v", "wave_k",
+      "wave_sig", "eps"]),
+    ("f_model", "Model (kinematics and fields)", True,
+     ["func_R", "func_phi", "coord_x1", "coord_y1", "coord_x2", "coord_y2", "dist_r1", "dist_r2",
+      "dist_rc", "func_zgrav", "func_ur", "func_zwave", "func_zinsp", "func_ztotal"]),
+    ("f_fabric", "Spacetime fabric", True, ["grid_list", "grid_lines_x", "grid_lines_y"]),
+    ("f_optional", "Optional markers (hidden)", True,
+     ["trail_obj1", "trail_obj2", "bh_point1", "bh_point2", "rg1", "rg2", "ring_bh1", "ring_bh2"]),
+]
+title = {"type": "text", "id": "note_title",
+         "text": ("Binary merger and spacetime ripple. A mathematical visualization inspired by general "
+                  "relativity (not an exact simulation). Press play on T: orbit, inspiral, merger at T_m, "
+                  "then an outward gravitational-wave-like ripple. S only exaggerates the display height.")}
+placed = set()
+new_list = [title]
+for fid, ftitle, collapsed, ids in groups:
+    new_list.append(folder(fid, ftitle, collapsed))
+    for i in ids:
+        if i in ex:
+            ex[i]["folderId"] = fid
+            new_list.append(ex[i])
+            placed.add(i)
+for e in lst:
+    if e["id"] not in placed and e.get("type") == "expression":
+        new_list.append(e)
+        print("unplaced (kept at end):", e["id"])
+s["expressions"]["list"] = new_list
+
 PATH.write_text(json.dumps(s, indent=2), encoding="utf-8")
 print("wrote", PATH)
