@@ -1,0 +1,12 @@
+{
+  "name": "binary-singularity-simulation",
+  "private": true,
+  "description": "Dev tooling only: screenshot checkpoints of the Desmos 3D state. The simulation itself runs in Desmos.",
+  "scripts": {
+    "build:state": "python scripts/build_state.py",
+    "checkpoints": "node scripts/render_checkpoints.js"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.50.0"
+  }
+}
