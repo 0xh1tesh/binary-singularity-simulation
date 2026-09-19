@@ -1,4 +1,6 @@
-## NOTE: THIS IS STILL UNDER HEAVY DEVELOPEMENT
+## NOTE: THIS IS STILL UNDER HEAVY DEVELOPMENT
+
+> **Scientific note:** this is an interactive mathematical visualization *inspired by* general relativity, not an exact simulation. See [`docs/MODEL.md`](./docs/MODEL.md) for what is approximated.
 
 ##  How to Run in Desmos 3D
 
@@ -51,18 +53,19 @@ The entire simulation is unified under a single master simulation clock $T$:
 
 ### 2. Spacetime Curvature Wells & Coalescence
 - **Two-Well Regularized Potential**:
-  $$z_g(x, y, T) = -\frac{A \cdot M_1}{\sqrt{|\mathbf{r} - \mathbf{r}_1(T)|^2 + e_0^2}} - \frac{A \cdot M_2}{\sqrt{|\mathbf{r} - \mathbf{r}_2(T)|^2 + e_0^2}}$$
-- At merger $T = T_m$, $R(T) \to 0$, causing both wells to smoothly merge into a single central remnant funnel of combined depth $-\frac{A(M_1 + M_2)}{\sqrt{x^2 + y^2 + e_0^2}}$.
+  $$z_g(x, y, T) = -\frac{A \cdot M_1}{r_1^{1.4}} - \frac{A \cdot M_2}{r_2^{1.4}}, \qquad r_i = \sqrt{|\mathbf{r} - \mathbf{r}_i(T)|^2 + e_0^2}$$
+- At merger $T = T_m$, $R(T) \to 0$, so both wells smoothly become a single, deeper remnant funnel. The steeper-than-Newtonian exponent 1.4 keeps the two wells visibly separate until they are close.
 
 ### 3. Outward Propagating Merger Wavefront
-- **Localized Wavepacket**:
-  $$z_w(x, y, T) = S \cdot \exp\left(-\frac{(T - T_m - r_c(x,y)/v_w)^2}{2\sigma^2}\right) \cdot \frac{\sin\left(k(r_c(x,y) - v_w(T - T_m))\right)}{\sqrt{r_c(x,y) + 0.6}}$$
-- Produces a calm fabric during early orbit, launching a strong undulating ripple at the moment of coalescence that expands outward at speed $v_w$.
+- **Merger-generated, quadrupolar wave**, with retarded time $u_r = T - T_m - r_c/v_w$:
+  $$z_w = S \cdot E(u_r) \cdot \big(1 + 0.6\cos(2(\theta - \phi_0(T_m)))\big) \cdot \frac{\sin(-k v_w u_r)}{1 + 0.35\, r_c}, \quad E(u_r) = \begin{cases} e^{-u_r^2/0.5} & u_r < 0 \\ e^{-u_r/\sigma} & u_r \ge 0 \end{cases}$$
+- The fabric is calm during the orbit. At $T_m$ a strong ripple starts at the centre, travels outward at speed $v_w$ with four quadrupole lobes, and rings down behind the front.
+- **Approximation notice:** this is a phenomenological, visualization-oriented model, not a solution of the Einstein equations, and the displayed amplitudes are exaggerated (`A_display = A_model * S`). See [`docs/MODEL.md`](./docs/MODEL.md).
 
 ### 4. Pure 3D Deformable Grid Representation
 - Spacetime is rendered through intersecting parametric space curves over coordinate array $L_g$:
   $$\mathbf{r}_x(t) = \big(t,\; L_g,\; Z(t, L_g, T)\big), \quad \mathbf{r}_y(t) = \big(L_g,\; t,\; Z(L_g, t, T)\big)$$
-- Rendered in thin 1.0 slate grey (`#606060`), eliminating solid polygonal surfaces so the grid lines themselves plunge into the wells and ripple with waves.
+- A dense 49 x 49 mesh (spacing 0.25, extent ±6) of thin blue lines, with the Desmos box, plane and axes switched off, so only the fabric is drawn and the lines themselves plunge into the wells and ripple with waves.
 
 ---
 
@@ -70,16 +73,16 @@ The entire simulation is unified under a single master simulation clock $T$:
 
 | Parameter | Desmos Symbol | Default Value | Description |
 |---|---|---|---|
-| `T` | $T$ | `1.0` | Master simulation time slider ($[0, 16]$) |
+| `T` | $T$ | `1.0` | Master simulation time slider ($[0, 18]$) |
 | `T_m` | $T_m$ | `10.0` | Coalescence/merger epoch |
 | `R_0` | $R_0$ | `5.0` | Initial binary separation |
 | `M_1, M_2` | $M_1, M_2$ | `1.0, 1.0` | Masses of singularity 1 and 2 |
-| `A` | $A$ | `2.8` | Gravitational well depth scale |
-| `S` | $S$ | `2.2` | Wavefront visualization amplification |
-| `e_0` | $e_0$ | `0.55` | Softening constant (singularity regularization) |
-| `v_w` | $v_w$ | `1.3` | Gravitational wavefront propagation velocity |
-| `k` | $k$ | `2.8` | Spatial wavenumber |
-| `\sigma` | $\sigma$ | `1.2` | Pulse width of the traveling wavepacket |
+| `A` | $A$ | `1.7` | Gravitational well depth scale |
+| `S` | $S$ | `2.2` | Ripple amplification (visualization only) |
+| `e_0` | $e_0$ | `0.8` | Softening constant (singularity regularization) |
+| `v_w` | $v_w$ | `1.6` | Ripple propagation speed |
+| `k` | $k$ | `2.2` | Spatial wavenumber |
+| `\sigma` | $\sigma$ | `1.6` | Ringdown decay time behind the wavefront |
 
 ---
 
@@ -87,20 +90,34 @@ The entire simulation is unified under a single master simulation clock $T$:
 
 ```
 binary-singularity-simulation/
-├── README.md                # Project documentation, visual gallery, and overview
-├── desmos_state.json        # Serialized Desmos 3D calculator state
-├── .gitignore
+├── README.md
+├── desmos_state.json        # Canonical Desmos 3D graph state (stable expression ids)
+├── package.json             # Dev tooling only (playwright-core)
+├── .mcp.json                # Playwright MCP config for agent-driven testing
 ├── docs/
-│   ├── MODEL.md             # Theoretical modeling & approximations
-│   ├── EQUATIONS.md         # Active equation catalog and Desmos LaTeX syntax
-│   ├── PARAMETERS.md        # Detailed parameter reference table
-│   ├── VISUALIZATION.md     # 3D graphical architecture and styling
-│   └── EXPERIMENTS.md       # Benchmarking and development logs
-├── assets/
-│   └── screenshots/         # Verified visual captures across all 5 simulation stages
-└── scripts/
-    └── load_graph.js        # Browser console injector script for Desmos 3D
+│   ├── MODEL.md             # What is modelled, approximated, or visualization-only
+│   ├── EQUATIONS.md         # Expression-id registry
+│   ├── PARAMETERS.md        # Slider reference
+│   ├── VISUALIZATION.md     # Fabric rendering and stage guide
+│   └── EXPERIMENTS.md       # Development log
+├── scripts/
+│   ├── load_graph.js        # Browser-console loader (validates and reports errors)
+│   ├── build_state.py       # Patches desmos_state.json by expression id
+│   └── render_checkpoints.js# Headless Playwright screenshots at T checkpoints
+└── assets/screenshots/
+    ├── checkpoints/         # Current verified stages (T = 1, 7, 9.6, 10.4, 12, 15)
+    └── *.png                # Earlier prototype captures
 ```
+
+## Testing
+
+```bash
+npm install
+npx playwright-core install chromium
+node scripts/render_checkpoints.js
+```
+
+This loads the state into desmos.com/3d headlessly, reports expression errors, and writes screenshots to `assets/screenshots/checkpoints/`. No Desmos account is needed.
 
 ---
 
