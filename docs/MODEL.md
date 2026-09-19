@@ -61,4 +61,5 @@ Everything is a function of the single slider `T`. There are no independent cloc
 - The wave envelope has a small non-zero tail before `T_m` at small radius. It is a deliberate precursor, not a physical effect.
 - The two wells can look merged from some camera angles around `T = 7`, when the separation is about 3 and the well width about 1.6.
 - Heights are exaggerated (see above). The wave speed `v_w` and wavelength are tuned to fit the grid and the time range, not to any physical system.
+- The inspiral term `z_i` is a weak, phenomenological two-arm spiral, not a post-Newtonian waveform.
 - The orbital plane is fixed to the fabric plane, and only the plus-like quadrupole pattern is drawn. There is no separate `h_x` component.
