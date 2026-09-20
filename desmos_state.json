@@ -534,7 +534,7 @@
         "type": "expression",
         "id": "bh_point1",
         "color": "#000000",
-        "latex": "\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),0.6z_{g}\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),T\\right)+0.7+S\\cdot A_{w}\\left(T-\\frac{0.3}{v_{w}}\\right)\\right)\\left\\{T<T_{m}+\\Delta_{p}\\right\\}",
+        "latex": "\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),0.6z_{g}\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),T\\right)+0.7+S\\cdot A_{w}\\left(\\min\\left(T,T_{m}\\right)-\\frac{0.3}{v_{w}}\\right)\\right)\\left\\{T<T_{m}+\\Delta_{p}\\right\\}",
         "pointSize": "1+3*M_{1}",
         "hidden": false,
         "folderId": "f_bh"
@@ -543,7 +543,7 @@
         "type": "expression",
         "id": "bh_point2",
         "color": "#000000",
-        "latex": "\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),0.6z_{g}\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),T\\right)+0.7+S\\cdot A_{w}\\left(T-\\frac{0.3}{v_{w}}\\right)\\right)\\left\\{T<T_{m}+\\Delta_{p}\\right\\}",
+        "latex": "\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),0.6z_{g}\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),T\\right)+0.7+S\\cdot A_{w}\\left(\\min\\left(T,T_{m}\\right)-\\frac{0.3}{v_{w}}\\right)\\right)\\left\\{T<T_{m}+\\Delta_{p}\\right\\}",
         "pointSize": "1+3*M_{2}",
         "hidden": false,
         "folderId": "f_bh"
@@ -551,7 +551,7 @@
       {
         "type": "expression",
         "id": "bh_merged",
-        "latex": "\\left(0,0,0.6z_{g}\\left(0,0,T\\right)+0.7+S\\cdot A_{w}\\left(T-\\frac{0.3}{v_{w}}\\right)\\right)\\left\\{T\\ge T_{m}+\\Delta_{p}\\right\\}",
+        "latex": "\\left(0,0,0.6z_{g}\\left(0,0,T\\right)+0.7+S\\cdot A_{w}\\left(\\min\\left(T,T_{m}\\right)-\\frac{0.3}{v_{w}}\\right)\\right)\\left\\{T\\ge T_{m}+\\Delta_{p}\\right\\}",
         "color": "#000000",
         "pointSize": "1+3\\left(M_{1}+M_{2}\\right)f_{m}\\left(T\\right)",
         "folderId": "f_bh"

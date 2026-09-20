@@ -140,7 +140,8 @@ ex["time_T"]["slider"].update(animationPeriod=45000, step="0.01")
 # --- black holes: small black dots that ride the fabric, then merge into one bigger dot
 LIFT = 0.7  # dots float this far above the well floor PLUS the local wave amplitude, so they always sit
             # on top of the mesh (they follow the smooth well, not the fast ripple, and never dip inside it)
-ENV = r"S\cdot A_{w}\left(T-\frac{0.3}{v_{w}}\right)"   # wave amplitude envelope near the source
+ENV = r"S\cdot A_{w}\left(\min\left(T,T_{m}\right)-\frac{0.3}{v_{w}}\right)"   # envelope frozen at merger: the
+# ringdown amplitude rises then decays, which made the merged dot bounce; a constant lift keeps its height steady
 
 FOLLOW = 0.6  # the dot follows only this fraction of the well depth, so a deeper dip lifts it higher above
               # the sheet: the bigger merged hole hovers over a bigger bend instead of sinking into it

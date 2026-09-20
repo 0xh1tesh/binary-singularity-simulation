@@ -51,8 +51,8 @@
 | `grid_list` | `C_k = [0, 1, 2, 3, 4]` | Chunk index: 5 curves per direction, 10 grid lines each |
 | `grid_lines_x`, `grid_lines_y` | `(X_s(t), Y_s(t, C_k), Z(...))`, `(Y_s(t, C_k), X_s(t), Z(...))`, t in [0, 10) | The 49 x 49 fabric mesh (surplus rows clamp onto the border line) |
 | `trail_obj1`, `trail_obj2` | Orbital tracks along the well floor | Hidden by default |
-| `bh_point1`, `bh_point2` | `(x_i(T), y_i(T), 0.6 z_g + 0.7 + S A_w(T - 0.3/v_w))` for `T < T_m + Delta_p`, size `1 + 3 M_i` | Black holes: small dots floating on top of the fabric |
-| `bh_merged` | `(0, 0, 0.6 z_g + 0.7 + S A_w(T - 0.3/v_w))` for `T >= T_m + Delta_p`, size `1 + 3 (M_1 + M_2) f_m` | The merged, larger black hole, hovering over a deeper dip |
+| `bh_point1`, `bh_point2` | `(x_i(T), y_i(T), 0.6 z_g + 0.7 + S A_w(min(T, T_m) - 0.3/v_w))` for `T < T_m + Delta_p`, size `1 + 3 M_i` | Black holes: small dots floating on top of the fabric |
+| `bh_merged` | `(0, 0, 0.6 z_g + 0.7 + S A_w(min(T, T_m) - 0.3/v_w))` for `T >= T_m + Delta_p`, size `1 + 3 (M_1 + M_2) f_m` | The merged, larger black hole, hovering over a deeper dip |
 | `ring_bh1`, `ring_bh2`, `rg1`, `rg2` | Horizon rings and radii | Hidden |
 
 Removed in this version: `func_ur` (retarded time is now implicit in the wave table); `wave_k`, `wave_sig` (replaced by the ringdown quality factor `wave_Q`) and `func_zinsp` (its role is now inside `func_zwave`).
