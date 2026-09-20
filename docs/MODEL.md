@@ -46,12 +46,12 @@ Geometric units `G = c = 1`, lengths in units of the total mass `M = m1 + m2` (s
 ## Merger (Approximation)
 
 - **Plunge**: for `T_m <= T < T_m + Delta_p`, `R = R_c (1 - x)^1.5` with `x = (T - T_m)/Delta_p`, reaching 0. This is a phenomenological plunge, not a geodesic.
-- **Frequency ramp**: the GW frequency rises from the contact value to `g_r` times it. The real ratio is about 3.9 (ringdown `M w = 0.53` against `2 Omega_isco = 2 * 6^(-3/2) = 0.136`); it is capped at `g_r = 1.8` so the shortest wavelength stays resolvable by the 0.25 grid.
+- **Frequency ramp**: the GW frequency rises from the contact value to `g_r` times it. The real ratio is about 3.9 (ringdown `M w = 0.53` against `2 Omega_isco = 2 * 6^(-3/2) = 0.136`); it is capped at `g_r = 1.5` so the shortest wavelength stays resolvable by the 0.25 grid.
 - **Radiated mass**: the well mass is scaled by `f_m = 1 - 0.046 * clamp((T - T_m)/Delta_p)`. GW150914 radiated about 3 of 65 solar masses.
 
 ## Wells (Approximation, Visualization only)
 
-`z_g = -f_m (A M1 / r1^1.4 + A M2 / r2^1.4)`, with softened distances `r_i = sqrt(|r - r_i|^2 + e0^2)`. This is a Newtonian-potential-style well, chosen to look like the familiar gravity-well picture. A true `1/r` potential would merge the two visual wells earlier; the exponent 1.4 keeps them distinct.
+`z_g = -f_m A (M1 / (d1^2 + e0^2) + M2 / (d2^2 + e0^2))`, where `d_i` is the distance to object `i`. This is a softened, potential-style well chosen to look like the familiar gravity-well picture. A true `1/r` potential would merge the two visual wells much earlier; the integer power `1/(d^2 + e0^2)` keeps them distinct until contact and needs no square roots or fractional powers, which makes it cheap to evaluate. Depth scales with mass, so the merged well (mass `M1 + M2`, minus the radiated fraction) is about twice as deep as either single well: a visibly bigger bend.
 
 The Schwarzschild embedding diagram (Flamm's paraboloid) is deliberately **not** used: the Wikipedia article states it must not be confused with a gravity well, because it shows only the spatial slice geometry.
 
@@ -66,7 +66,12 @@ One retarded-time field, not separate pieces:
 - **Merger**: a smoothstep from `a_i` to the peak `A_p` over the plunge.
 - **Ringdown** (Established form, approximate numbers): a damped sinusoid `exp(-gamma u) cos(w u)` with `gamma = w / (2 Q)`. The quality factor `Q_f = 3.3` is the fundamental `l = m = 2` mode for a remnant spin near 0.69 (Berti, Cardoso and Will 2006); the exact coefficients were recalled, not re-verified, so treat `Q` as approximate.
 - **Radial decay**: `1/(1 + 0.35 r)` regularizes the far-field `1/r` at the source.
+- **Evaluation**: amplitude and phase depend on position only through the radius, so they are tabulated once per frame on a radial table (step 0.02, nearest entry). The look-up phase error is below 0.07 rad.
 - **Speed** `v_w` is a display speed, not `c`.
+
+## Black-hole dots (Visualization only)
+
+Two small dots (size `1 + 3 M_i`) follow the wells, then one larger dot (size `1 + 3 (M1 + M2) f_m`) replaces them at `T_m + Delta_p`. Their height is `0.6 z_g + 0.7 + S A_w(T - 0.3/v_w)`: they follow only 60% of the well depth, so a deeper dip lifts the dot higher above the sheet, and they add the local wave amplitude, so ripples never swallow them. The dots float on top of the fabric and are not part of the physics.
 
 ## Known limitations
 

@@ -52,7 +52,7 @@ The entire simulation is unified under a single master simulation clock $T$:
 
 ### 2. Curvature wells and coalescence
 - **Two softened potential wells**, with the total mass reduced by the radiated fraction $f_m$ (GW150914: about 3 of 65 solar masses):
-  $$z_g = -f_m(T)\left(\frac{A M_1}{r_1^{1.4}} + \frac{A M_2}{r_2^{1.4}}\right), \qquad r_i = \sqrt{|\mathbf{r} - \mathbf{r}_i(T)|^2 + e_0^2}$$
+  $$z_g = -f_m(T)\,A\left(\frac{M_1}{d_1^2 + e_0^2} + \frac{M_2}{d_2^2 + e_0^2}\right), \qquad d_i = |\mathbf{r} - \mathbf{r}_i(T)|$$
 - Flamm's paraboloid (the Schwarzschild embedding diagram) is intentionally not used: it shows spatial curvature only and is not a gravity well.
 
 ### 3. One retarded-time gravitational-wave field
@@ -65,7 +65,9 @@ The entire simulation is unified under a single master simulation clock $T$:
 ### 4. Pure 3D Deformable Grid Representation
 - Spacetime is rendered through intersecting parametric space curves over coordinate array $L_g$:
   $$\mathbf{r}_x(t) = \big(t,\; L_g,\; Z(t, L_g, T)\big), \quad \mathbf{r}_y(t) = \big(L_g,\; t,\; Z(L_g, t, T)\big)$$
-- A dense 49 x 49 mesh (spacing 0.25, extent ±6) of thin blue lines, with the Desmos box, plane and axes switched off, so only the fabric is drawn and the lines themselves plunge into the wells and ripple with waves.
+- A dense 49 x 49 mesh (spacing 0.25, extent ±6) of hairline light-grey lines, with the Desmos box, plane and axes switched off, so only the fabric is drawn and the lines themselves dip into the wells and ripple with waves.
+- Two small black dots (the black holes) float on top of the fabric in the wells, then merge into one larger dot that hovers over a deeper dip. Playback is slow (45 s per sweep) and smooth (step 0.01).
+- **Performance:** the mesh is drawn as 10 serpentine curves instead of 98 separate lines, the same 49 x 49 mesh at about 40 fps (was about 8.5 on the reference machine). See [`docs/VISUALIZATION.md`](./docs/VISUALIZATION.md).
 
 ---
 
@@ -77,9 +79,9 @@ The entire simulation is unified under a single master simulation clock $T$:
 | `T_m` | $T_m$ | `10` | Time of contact (merger) |
 | `R_0` | $R_0$ | `5` | Starting separation (10 M) in grid units |
 | `M_1, M_2` | $M_1, M_2$ | `1, 1` | Masses (well depth, barycentre, orbit count) |
-| `A` | $A$ | `1.7` | Well depth (visualization scale) |
+| `A` | $A$ | `1.2` | Well depth (visualization scale) |
 | `S` | $S$ | `2.2` | Ripple amplification (visualization only) |
-| `e_0` | $e_0$ | `0.8` | Well softening |
+| `e_0` | $e_0$ | `1` | Well softening |
 | `v_w` | $v_w$ | `2.2` | Ripple propagation speed (display speed) |
 | `Q_f` | $Q_f$ | `3.3` | Ringdown quality factor |
 
@@ -107,7 +109,8 @@ binary-singularity-simulation/
 │   ├── load_graph.js        # Browser-console loader (validates and reports errors)
 │   ├── build_state.py       # Patches desmos_state.json by expression id
 │   ├── make_mcp_loader.py   # Writes a Playwright-MCP snippet that loads the state
-│   └── render_checkpoints.js# Headless Playwright screenshots at T checkpoints
+│   ├── bench_fps.js         # Playback frame-rate benchmark (GPU-backed Chromium)
+│   └── render_checkpoints.js# Playwright screenshots at T checkpoints
 └── assets/screenshots/
     ├── checkpoints/         # Current verified stages (T = 1, 7, 9.6, 10.4, 12, 15)
     └── *.png                # Earlier prototype captures
@@ -118,7 +121,8 @@ binary-singularity-simulation/
 ```bash
 npm install
 npx playwright-core install chromium
-node scripts/render_checkpoints.js
+node scripts/render_checkpoints.js   # screenshots at six checkpoints
+node scripts/bench_fps.js            # measures real playback redraws per second
 ```
 
 This loads the state into desmos.com/3d headlessly, reports expression errors, and writes screenshots to `assets/screenshots/checkpoints/`. No Desmos account is needed.

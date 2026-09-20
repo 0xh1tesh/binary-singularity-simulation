@@ -30,15 +30,15 @@
       false
     ],
     "worldRotation3D": [
-      -0.475528,
+      -0.414519,
       -0.866025,
-      -0.154508,
-      0.823639,
+      -0.279596,
+      0.717968,
       -0.5,
-      0.267617,
-      -0.309017,
+      0.484275,
+      -0.559193,
       0.0,
-      0.951057
+      0.829038
     ]
   },
   "expressions": {
@@ -65,7 +65,8 @@
           "loopMode": "LOOP_FORWARD",
           "min": "0",
           "max": "18",
-          "step": "0.05"
+          "step": "0.01",
+          "animationPeriod": 45000
         },
         "folderId": "f_controls"
       },
@@ -125,7 +126,7 @@
         "type": "expression",
         "id": "amp_A",
         "color": "#2d70b3",
-        "latex": "A=1.7",
+        "latex": "A=1.2",
         "folderId": "f_controls",
         "slider": {
           "hardMin": true,
@@ -177,7 +178,7 @@
         "type": "expression",
         "id": "eps",
         "color": "#6042a6",
-        "latex": "e_{0}=0.8",
+        "latex": "e_{0}=1",
         "folderId": "f_controls",
         "slider": {
           "hardMin": true,
@@ -211,7 +212,7 @@
       {
         "type": "expression",
         "id": "phys_gr",
-        "latex": "g_{r}=1.8",
+        "latex": "g_{r}=1.5",
         "color": "#6042a6",
         "hidden": true,
         "folderId": "f_phys"
@@ -219,7 +220,7 @@
       {
         "type": "expression",
         "id": "phys_ap",
-        "latex": "A_{p}=1.6",
+        "latex": "A_{p}=0.85",
         "color": "#6042a6",
         "hidden": true,
         "folderId": "f_phys"
@@ -328,9 +329,57 @@
       },
       {
         "type": "expression",
+        "id": "func_fm",
+        "latex": "f_{m}\\left(T\\right)=1-\\epsilon_{r}\\min\\left(1,\\max\\left(0,\\frac{T-T_{m}}{\\Delta_{p}}\\right)\\right)",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_model"
+      },
+      {
+        "type": "expression",
+        "id": "cur_x1",
+        "latex": "X_{1c}=x_{1}\\left(T\\right)",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_model"
+      },
+      {
+        "type": "expression",
+        "id": "cur_y1",
+        "latex": "Y_{1c}=y_{1}\\left(T\\right)",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_model"
+      },
+      {
+        "type": "expression",
+        "id": "cur_x2",
+        "latex": "X_{2c}=x_{2}\\left(T\\right)",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_model"
+      },
+      {
+        "type": "expression",
+        "id": "cur_y2",
+        "latex": "Y_{2c}=y_{2}\\left(T\\right)",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_model"
+      },
+      {
+        "type": "expression",
+        "id": "cur_fm",
+        "latex": "F_{mc}=f_{m}\\left(T\\right)",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_model"
+      },
+      {
+        "type": "expression",
         "id": "dist_r1",
         "color": "#6042a6",
-        "latex": "r_{1}\\left(x,y,T\\right)=\\sqrt{\\left(x-x_{1}\\left(T\\right)\\right)^{2}+\\left(y-y_{1}\\left(T\\right)\\right)^{2}+e_{0}^{2}}",
+        "latex": "r_{1}\\left(x,y,T\\right)=\\left(x-X_{1c}\\right)^{2}+\\left(y-Y_{1c}\\right)^{2}+e_{0}^{2}",
         "hidden": true,
         "folderId": "f_model"
       },
@@ -338,7 +387,7 @@
         "type": "expression",
         "id": "dist_r2",
         "color": "#aaaaaa",
-        "latex": "r_{2}\\left(x,y,T\\right)=\\sqrt{\\left(x-x_{2}\\left(T\\right)\\right)^{2}+\\left(y-y_{2}\\left(T\\right)\\right)^{2}+e_{0}^{2}}",
+        "latex": "r_{2}\\left(x,y,T\\right)=\\left(x-X_{2c}\\right)^{2}+\\left(y-Y_{2c}\\right)^{2}+e_{0}^{2}",
         "hidden": true,
         "folderId": "f_model"
       },
@@ -352,41 +401,57 @@
       },
       {
         "type": "expression",
-        "id": "func_fm",
-        "latex": "f_{m}\\left(T\\right)=1-\\epsilon_{r}\\min\\left(1,\\max\\left(0,\\frac{T-T_{m}}{\\Delta_{p}}\\right)\\right)",
-        "color": "#6042a6",
-        "hidden": true,
-        "folderId": "f_model"
-      },
-      {
-        "type": "expression",
         "id": "func_zgrav",
         "color": "#2d70b3",
-        "latex": "z_{g}\\left(x,y,T\\right)=-f_{m}\\left(T\\right)\\left(\\frac{A\\cdot M_{1}}{r_{1}\\left(x,y,T\\right)^{1.4}}+\\frac{A\\cdot M_{2}}{r_{2}\\left(x,y,T\\right)^{1.4}}\\right)",
+        "latex": "z_{g}\\left(x,y,T\\right)=-F_{mc}\\cdot A\\left(\\frac{M_{1}}{r_{1}\\left(x,y,T\\right)}+\\frac{M_{2}}{r_{2}\\left(x,y,T\\right)}\\right)",
         "hidden": true,
         "folderId": "f_model"
       },
       {
         "type": "expression",
         "id": "func_amp",
-        "latex": "A_{w}\\left(u\\right)=\\left\\{0<u<T_{m}:a_{i}q_{c}\\left(1-\\frac{u}{\\tau_{p}}\\right)^{-0.25}\\min\\left(1,\\frac{u}{0.8}\\right),T_{m}\\le u<T_{m}+\\Delta_{p}:a_{i}+\\left(A_{p}-a_{i}\\right)\\left(\\frac{u-T_{m}}{\\Delta_{p}}\\right)^{2}\\left(3-2\\frac{u-T_{m}}{\\Delta_{p}}\\right),u\\ge T_{m}+\\Delta_{p}:A_{p}e^{-\\frac{g_{r}\\Omega_{c}}{Q_{f}}\\left(u-T_{m}-\\Delta_{p}\\right)},0\\right\\}",
+        "latex": "A_{w}\\left(u\\right)=\\left\\{0<u<T_{m}:a_{i}q_{c}\\left(1-\\frac{u}{\\tau_{p}}\\right)^{-0.25}\\left\\{u<0.8:\\frac{u}{0.8},1\\right\\},T_{m}\\le u<T_{m}+\\Delta_{p}:a_{i}+\\left(A_{p}-a_{i}\\right)\\left(\\frac{u-T_{m}}{\\Delta_{p}}\\right)^{2}\\left(3-2\\frac{u-T_{m}}{\\Delta_{p}}\\right),u\\ge T_{m}+\\Delta_{p}:A_{p}e^{-\\frac{g_{r}\\Omega_{c}}{Q_{f}}\\left(u-T_{m}-\\Delta_{p}\\right)},0\\right\\}",
         "color": "#6042a6",
         "hidden": true,
         "folderId": "f_model"
       },
       {
         "type": "expression",
-        "id": "func_ur",
-        "color": "#388c46",
+        "id": "tab_r",
+        "latex": "R_{t}=\\left[0,0.02...9.2\\right]",
+        "color": "#6042a6",
         "hidden": true,
-        "latex": "u_{r}\\left(x,y,T\\right)=T-\\frac{r_{c}\\left(x,y\\right)}{v_{w}}",
+        "folderId": "f_model"
+      },
+      {
+        "type": "expression",
+        "id": "tab_a",
+        "latex": "W_{a}=\\frac{S\\cdot A_{w}\\left(T-\\frac{R_{t}}{v_{w}}\\right)}{1+0.35R_{t}}",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_model"
+      },
+      {
+        "type": "expression",
+        "id": "tab_p",
+        "latex": "W_{p}=2\\phi_{0}\\left(T-\\frac{R_{t}}{v_{w}}\\right)",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_model"
+      },
+      {
+        "type": "expression",
+        "id": "tab_n",
+        "latex": "n_{r}\\left(r\\right)=\\operatorname{round}\\left(50r\\right)+1",
+        "color": "#6042a6",
+        "hidden": true,
         "folderId": "f_model"
       },
       {
         "type": "expression",
         "id": "func_zwave",
         "color": "#388c46",
-        "latex": "z_{w}\\left(x,y,T\\right)=S\\cdot A_{w}\\left(u_{r}\\left(x,y,T\\right)\\right)\\cdot\\frac{\\cos\\left(2\\arctan\\left(y,x\\right)-2\\phi_{0}\\left(u_{r}\\left(x,y,T\\right)\\right)\\right)}{1+0.35\\cdot r_{c}\\left(x,y\\right)}",
+        "latex": "z_{w}\\left(x,y,T\\right)=W_{a}\\left[n_{r}\\left(r_{c}\\left(x,y\\right)\\right)\\right]\\cos\\left(2\\arctan\\left(y,x\\right)-W_{p}\\left[n_{r}\\left(r_{c}\\left(x,y\\right)\\right)\\right]\\right)",
         "hidden": true,
         "folderId": "f_model"
       },
@@ -406,42 +471,90 @@
       },
       {
         "type": "expression",
+        "id": "grid_xs",
+        "latex": "X_{s}\\left(t\\right)=-6+12\\left(\\operatorname{mod}\\left(t,1\\right)+\\operatorname{mod}\\left(\\operatorname{floor}\\left(t\\right),2\\right)\\left(1-2\\operatorname{mod}\\left(t,1\\right)\\right)\\right)",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_fabric"
+      },
+      {
+        "type": "expression",
+        "id": "grid_ys",
+        "latex": "Y_{s}\\left(t,c\\right)=\\min\\left(6,-6+0.25\\left(10c+\\operatorname{floor}\\left(t\\right)\\right)\\right)",
+        "color": "#6042a6",
+        "hidden": true,
+        "folderId": "f_fabric"
+      },
+      {
+        "type": "expression",
         "id": "grid_list",
         "color": "#aaaaaa",
-        "latex": "L_{g}=\\left[-6,-5.75,-5.5,-5.25,-5,-4.75,-4.5,-4.25,-4,-3.75,-3.5,-3.25,-3,-2.75,-2.5,-2.25,-2,-1.75,-1.5,-1.25,-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.75,3,3.25,3.5,3.75,4,4.25,4.5,4.75,5,5.25,5.5,5.75,6\\right]",
+        "latex": "C_{k}=\\left[0,1,2,3,4\\right]",
         "folderId": "f_fabric"
       },
       {
         "type": "expression",
         "id": "grid_lines_x",
-        "color": "#1d4e89",
-        "latex": "\\left(t,L_{g},Z\\left(t,L_{g},T\\right)\\right)",
+        "color": "#bdbdbd",
+        "latex": "\\left(X_{s}\\left(t\\right),Y_{s}\\left(t,C_{k}\\right),Z\\left(X_{s}\\left(t\\right),Y_{s}\\left(t,C_{k}\\right),T\\right)\\right)",
         "parametricDomain": {
-          "min": "-6.0",
-          "max": "6.0"
+          "min": "0",
+          "max": "9.9999"
         },
-        "lineWidth": "1",
+        "lineWidth": "0.3",
         "domain": {
-          "min": "-6.0",
-          "max": "6.0"
+          "min": "0",
+          "max": "9.9999"
         },
         "folderId": "f_fabric"
       },
       {
         "type": "expression",
         "id": "grid_lines_y",
-        "color": "#2f80c9",
-        "latex": "\\left(L_{g},t,Z\\left(L_{g},t,T\\right)\\right)",
+        "color": "#bdbdbd",
+        "latex": "\\left(Y_{s}\\left(t,C_{k}\\right),X_{s}\\left(t\\right),Z\\left(Y_{s}\\left(t,C_{k}\\right),X_{s}\\left(t\\right),T\\right)\\right)",
         "parametricDomain": {
-          "min": "-6.0",
-          "max": "6.0"
+          "min": "0",
+          "max": "9.9999"
         },
-        "lineWidth": "1",
+        "lineWidth": "0.3",
         "domain": {
-          "min": "-6.0",
-          "max": "6.0"
+          "min": "0",
+          "max": "9.9999"
         },
         "folderId": "f_fabric"
+      },
+      {
+        "type": "folder",
+        "id": "f_bh",
+        "title": "Black holes",
+        "collapsed": true
+      },
+      {
+        "type": "expression",
+        "id": "bh_point1",
+        "color": "#000000",
+        "latex": "\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),0.6z_{g}\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),T\\right)+0.7+S\\cdot A_{w}\\left(T-\\frac{0.3}{v_{w}}\\right)\\right)\\left\\{T<T_{m}+\\Delta_{p}\\right\\}",
+        "pointSize": "1+3*M_{1}",
+        "hidden": false,
+        "folderId": "f_bh"
+      },
+      {
+        "type": "expression",
+        "id": "bh_point2",
+        "color": "#000000",
+        "latex": "\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),0.6z_{g}\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),T\\right)+0.7+S\\cdot A_{w}\\left(T-\\frac{0.3}{v_{w}}\\right)\\right)\\left\\{T<T_{m}+\\Delta_{p}\\right\\}",
+        "pointSize": "1+3*M_{2}",
+        "hidden": false,
+        "folderId": "f_bh"
+      },
+      {
+        "type": "expression",
+        "id": "bh_merged",
+        "latex": "\\left(0,0,0.6z_{g}\\left(0,0,T\\right)+0.7+S\\cdot A_{w}\\left(T-\\frac{0.3}{v_{w}}\\right)\\right)\\left\\{T\\ge T_{m}+\\Delta_{p}\\right\\}",
+        "color": "#000000",
+        "pointSize": "1+3\\left(M_{1}+M_{2}\\right)f_{m}\\left(T\\right)",
+        "folderId": "f_bh"
       },
       {
         "type": "folder",
@@ -453,7 +566,7 @@
         "type": "expression",
         "id": "trail_obj1",
         "color": "#2980b9",
-        "latex": "\\left(x_{1}\\left(t\\cdot T\\right),y_{1}\\left(t\\cdot T\\right),z_{g}\\left(x_{1}\\left(t\\cdot T\\right),y_{1}\\left(t\\cdot T\\right),t\\cdot T\\right)+0.08\\right)",
+        "latex": "\\left(x_{1}\\left(t\\cdot T\\right),y_{1}\\left(t\\cdot T\\right),Z\\left(x_{1}\\left(t\\cdot T\\right),y_{1}\\left(t\\cdot T\\right),T\\right)+0.08\\right)",
         "parametricDomain": {
           "min": "0",
           "max": "1"
@@ -470,7 +583,7 @@
         "type": "expression",
         "id": "trail_obj2",
         "color": "#c0392b",
-        "latex": "\\left(x_{2}\\left(t\\cdot T\\right),y_{2}\\left(t\\cdot T\\right),z_{g}\\left(x_{2}\\left(t\\cdot T\\right),y_{2}\\left(t\\cdot T\\right),t\\cdot T\\right)+0.08\\right)",
+        "latex": "\\left(x_{2}\\left(t\\cdot T\\right),y_{2}\\left(t\\cdot T\\right),Z\\left(x_{2}\\left(t\\cdot T\\right),y_{2}\\left(t\\cdot T\\right),T\\right)+0.08\\right)",
         "parametricDomain": {
           "min": "0",
           "max": "1"
@@ -480,26 +593,6 @@
           "min": "0",
           "max": "1"
         },
-        "hidden": true,
-        "folderId": "f_optional"
-      },
-      {
-        "type": "expression",
-        "id": "bh_point1",
-        "color": "#000000",
-        "latex": "\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),z_{g}\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),T\\right)\\right)",
-        "pointSize": "9",
-        "movablePointSize": "9",
-        "hidden": true,
-        "folderId": "f_optional"
-      },
-      {
-        "type": "expression",
-        "id": "bh_point2",
-        "color": "#000000",
-        "latex": "\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),z_{g}\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),T\\right)\\right)",
-        "pointSize": "9",
-        "movablePointSize": "9",
         "hidden": true,
         "folderId": "f_optional"
       },
