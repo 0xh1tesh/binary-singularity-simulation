@@ -16,7 +16,7 @@
 
 ##  Mathematical Model & Dynamic Hierarchy
 
-The entire simulation is unified under a single master simulation clock $T$:
+The entire simulation is unified under a single master simulation clock T:
 
 ```
                             Master Time T
@@ -33,38 +33,48 @@ The entire simulation is unified under a single master simulation clock $T$:
                 ┌─────────────────┴─────────────────┐
                 ▼                                   ▼
        Gravitational Wells                  Orbital Spiral Trails
-        z_g(x, y, T)                             r_trail(t·T)
+          zg(x, y, T)                            trail(t·T)
                 │                                   │
                 └─────────────────┬─────────────────┘
                                   ▼
                          Merger Wavefront Blast
-                            z_w(x, y, T)
+                            zw(x, y, T)
                                   │
                                   ▼
                    Total 3D Deformable Grid Lattice
-                     Z(x, y, T) = z_g + z_w
+                     Z(x, y, T) = zg + zw
 ```
 
 ### 1. Inspiral: Peters decay and Kepler phase
-- **Separation** (Peters, circular orbit): $R(T) = R_0\left(1 - T/\tau_p\right)^{1/4}$, with $\tau_p = T_m/(1 - q_c^4)$ so that contact ($R_c = 6GM/c^2$, the Schwarzschild ISCO, $q_c = R_c/R_0 = 0.6$) happens at $T_m$.
-- **Orbital phase** (Kepler + Peters, closed form): $\phi_0(T) = \dfrac{\Phi_c}{1 - q_c^{5/2}}\left(1 - (1 - T/\tau_p)^{5/8}\right)$, so the frequency chirps as $(1 - T/\tau_p)^{-3/8}$. $\Phi_c = 7.127/\eta$ rad is about 4.5 orbits for equal masses; GW150914 spent about 5 orbits in band.
-- After contact the objects plunge (`R -> 0` in $\Delta_p$) and the frequency ramps up toward the ringdown value.
+- **Separation** (Peters, circular orbit): R(T) = R0 · ⁴√(1 − T/τp), with τp = Tm / (1 − qc⁴), so that contact (Rc = 6GM/c², the Schwarzschild ISCO, qc = Rc/R0 = 0.6) happens at Tm.
+- **Orbital phase** (Kepler + Peters, closed form): φ0(T) = Φc · (1 − ⁸√((1 − T/τp)⁵)) / (1 − qc²·√qc), so the frequency chirps as 1 / ⁸√((1 − T/τp)³). Φc = 7.127 / η rad is about 4.5 orbits for equal masses; GW150914 spent about 5 orbits in band.
+- After contact the objects plunge (R falls to 0 within Δp) and the frequency ramps up toward the ringdown value.
 
 ### 2. Curvature wells and coalescence
-- **Two softened potential wells**, with the total mass reduced by the radiated fraction $f_m$ (GW150914: about 3 of 65 solar masses):
-  $$z_g = -f_m(T)\,A\left(\frac{M_1}{d_1^2 + e_0^2} + \frac{M_2}{d_2^2 + e_0^2}\right), \qquad d_i = |\mathbf{r} - \mathbf{r}_i(T)|$$
+- **Two softened potential wells**, with the total mass reduced by the radiated fraction fm (GW150914: about 3 of 65 solar masses):
+
+  ```
+  zg = − fm(T) · A · ( M1 / (d1² + e0²)  +  M2 / (d2² + e0²) )      di = distance from the point to object i
+  ```
 - Flamm's paraboloid (the Schwarzschild embedding diagram) is intentionally not used: it shows spatial curvature only and is not a gravity well.
 
 ### 3. One retarded-time gravitational-wave field
-- $u_r = T - r/v_w$. Inspiral, merger and ringdown are a single field:
-  $$z_w = S \cdot A_w(u_r) \cdot \frac{\cos\big(2\theta - 2\phi_0(u_r)\big)}{1 + 0.35\,r}$$
-- $A_w$: inspiral amplitude $\propto f^{2/3}$ (chirp scaling) growing to contact, a smooth rise to the merger peak, then a quasinormal ringdown $e^{-\gamma u}\cos(\omega u)$ with $\gamma = \omega/2Q$, $Q \approx 3.3$ (fundamental $l = m = 2$ mode, remnant spin near 0.69).
-- $\cos(2\theta - 2\phi_0)$ is the $m = 2$ mode: a two-armed spiral wound by the orbit that tightens as the binary chirps.
-- **Approximation notice:** this is a phenomenological visualization built on established formulas, not a solution of the Einstein equations; displayed heights are exaggerated ($A_{display} = A_{model} \cdot S$). Which parts are established, approximate or visual is listed in [`docs/MODEL.md`](./docs/MODEL.md), with sources in [`docs/REFERENCES.md`](./docs/REFERENCES.md).
+- Retarded time: ur = T − r / vw. Inspiral, merger and ringdown are a single field:
+
+  ```
+  zw = S · Aw(ur) · cos( 2θ − 2·φ0(ur) ) / (1 + 0.35·r)
+  ```
+- Aw: inspiral amplitude growing as the cube root of f² (chirp scaling) up to contact, a smooth rise to the merger peak, then a quasinormal ringdown that decays as exp(−γ·u) with γ = ω / 2Q, Q ≈ 3.3 (fundamental l = m = 2 mode, remnant spin near 0.69).
+- cos(2θ − 2·φ0) is the m = 2 mode: a two-armed spiral wound by the orbit that tightens as the binary chirps.
+- **Approximation notice:** this is a phenomenological visualization built on established formulas, not a solution of the Einstein equations; displayed heights are exaggerated (displayed height = model height · S). Which parts are established, approximate or visual is listed in [`docs/MODEL.md`](./docs/MODEL.md), with sources in [`docs/REFERENCES.md`](./docs/REFERENCES.md).
 
 ### 4. Pure 3D Deformable Grid Representation
-- Spacetime is rendered through intersecting parametric space curves over coordinate array $L_g$:
-  $$\mathbf{r}_x(t) = \big(t,\; L_g,\; Z(t, L_g, T)\big), \quad \mathbf{r}_y(t) = \big(L_g,\; t,\; Z(L_g, t, T)\big)$$
+- Spacetime is rendered through intersecting parametric space curves over the grid coordinates Lg:
+
+  ```
+  X family:  ( t, Lg, Z(t, Lg, T) )        Y family:  ( Lg, t, Z(Lg, t, T) )
+  ```
+
 - A dense 49 x 49 mesh (spacing 0.25, extent ±6) of hairline light-grey lines, with the Desmos box, plane and axes switched off, so only the fabric is drawn and the lines themselves dip into the wells and ripple with waves.
 - Two small black dots (the black holes) float on top of the fabric in the wells, then merge into one larger dot that hovers over a deeper dip. Playback is slow (45 s per sweep) and smooth (step 0.01).
 - **Performance:** the mesh is drawn as 10 serpentine curves instead of 98 separate lines, the same 49 x 49 mesh at about 40 fps (was about 8.5 on the reference machine). See [`docs/VISUALIZATION.md`](./docs/VISUALIZATION.md).
@@ -75,15 +85,15 @@ The entire simulation is unified under a single master simulation clock $T$:
 
 | Parameter | Desmos Symbol | Default | Description |
 |---|---|---|---|
-| `T` | $T$ | `1` | Master clock ($[0, 18]$) |
-| `T_m` | $T_m$ | `10` | Time of contact (merger) |
-| `R_0` | $R_0$ | `5` | Starting separation (10 M) in grid units |
-| `M_1, M_2` | $M_1, M_2$ | `1, 1` | Masses (well depth, barycentre, orbit count) |
-| `A` | $A$ | `1.2` | Well depth (visualization scale) |
-| `S` | $S$ | `2.2` | Ripple amplification (visualization only) |
-| `e_0` | $e_0$ | `1` | Well softening |
-| `v_w` | $v_w$ | `2.2` | Ripple propagation speed (display speed) |
-| `Q_f` | $Q_f$ | `3.3` | Ringdown quality factor |
+| `T` | T | `1` | Master clock (0 to 18) |
+| `Tm` | Tm | `10` | Time of contact (merger) |
+| `R0` | R0 | `5` | Starting separation (10 M) in grid units |
+| `M1, M2` | M1, M2 | `1, 1` | Masses (well depth, barycentre, orbit count) |
+| `A` | A | `1.2` | Well depth (visualization scale) |
+| `S` | S | `2.2` | Ripple amplification (visualization only) |
+| `e0` | e0 | `1` | Well softening |
+| `vw` | vw | `2.2` | Ripple propagation speed (display speed) |
+| `Qf` | Qf | `3.3` | Ringdown quality factor |
 
 Physical constants (ISCO ratio, plunge time, radiated fraction, wave amplitudes) are in a collapsed folder in Desmos; see [`docs/PARAMETERS.md`](./docs/PARAMETERS.md).
 

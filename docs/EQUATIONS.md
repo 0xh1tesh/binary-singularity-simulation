@@ -2,57 +2,59 @@
 
 `desmos_state.json` is the canonical graph state. `scripts/build_state.py` patches it by expression id, so this table is the map from id to model concept. Tags (Established, Approximation, Phenomenological, Visualization only) are explained in [MODEL.md](./MODEL.md); sources are in [REFERENCES.md](./REFERENCES.md). In Desmos the expressions sit in folders: Controls, Physical constants, Model, Spacetime fabric, Optional markers.
 
+**Notation.** Formulas are written in plain text. A name such as `Tm`, `qc` or `zg` is one symbol (a base letter plus a label), so a product is always written with a dot: `A · Tm`. Squares and cubes use ², ³, ⁴; roots use √, ∛, ⁴√, ⁸√; a power is written as a root or a fraction rather than with a caret. `x1(T)` means the function x1 of T. Expression ids (`time_Tm`, `phys_qc`, ...) are code identifiers and keep their underscores.
+
 ## Controls
 
-`time_T` (`T`), `time_Tm` (`T_m`), `rad_R0` (`R_0`), `mass_m1`, `mass_m2` (`M_1`, `M_2`), `amp_A` (`A`), `scale_S` (`S`), `eps` (`e_0`), `wave_v` (`v_w`), `wave_Q` (`Q_f`). Defaults and ranges: [PARAMETERS.md](./PARAMETERS.md).
+`time_T` (T), `time_Tm` (Tm), `rad_R0` (R0), `mass_m1`, `mass_m2` (M1, M2), `amp_A` (A), `scale_S` (S), `eps` (e0), `wave_v` (vw), `wave_Q` (Qf). Defaults and ranges: [PARAMETERS.md](./PARAMETERS.md).
 
 ## Physical constants and derived scales
 
 | ID | Expression | Tag |
 |---|---|---|
-| `phys_qc` | `q_c = 0.6` (`R_c/R_0 = 6M/10M`) | Established (ISCO) |
-| `phys_dp` | `Delta_p = 0.6` plunge duration | Visualization only |
-| `phys_gr` | `g_r = 1.5` ringdown/contact frequency ratio | Approximation (real about 3.9) |
-| `phys_ap`, `phys_ai` | `A_p = 0.85`, `a_i = 0.22` relative wave amplitudes | Phenomenological |
-| `phys_er` | `epsilon_r = 0.046` radiated mass fraction | Established (GW150914) |
-| `phys_eta` | `eta = M1 M2 / (M1+M2)^2` | Established |
-| `phys_tau` | `tau_p = T_m / (1 - q_c^4)` | Established (Peters, rescaled) |
-| `phys_Phic` | `Phi_c = 7.127 / eta` | Derived (Kepler + Peters) |
-| `phys_Omc` | `Omega_c = 5 Phi_c / (8 tau_p (1 - q_c^2.5) q_c^1.5)` | Derived |
+| `phys_qc` | `qc = 0.6` (Rc / R0 = 6M / 10M) | Established (ISCO) |
+| `phys_dp` | `Δp = 0.6`, the plunge duration | Visualization only |
+| `phys_gr` | `gr = 1.5`, ringdown-to-contact frequency ratio | Approximation (real value about 3.9) |
+| `phys_ap`, `phys_ai` | `Ap = 0.85`, `ai = 0.22`, relative wave amplitudes | Phenomenological |
+| `phys_er` | `εr = 0.046`, radiated mass fraction | Established (GW150914) |
+| `phys_eta` | `η = M1 · M2 / (M1 + M2)²` | Established |
+| `phys_tau` | `τp = Tm / (1 − qc⁴)` | Established (Peters, rescaled) |
+| `phys_Phic` | `Φc = 7.127 / η` | Derived (Kepler + Peters) |
+| `phys_Omc` | `Ωc = 5 · Φc / ( 8 · τp · (1 − qc² · √qc) · qc · √qc )` | Derived |
 
 ## Kinematics
 
 | ID | Expression | Tag |
 |---|---|---|
-| `func_R` | `R(T) = {T<T_m: R_0 (1 - T/tau_p)^0.25, T<T_m+Delta_p: R_0 q_c (1 - (T-T_m)/Delta_p)^1.5, 0}` | Established inspiral, phenomenological plunge |
-| `func_phi` | `phi_0(T)`: inspiral `Phi_c (1 - (1 - T/tau_p)^0.625)/(1 - q_c^2.5)`; plunge `Phi_c + Omega_c((T-T_m) + (g_r-1)(T-T_m)^2/(2 Delta_p))`; ringdown `Phi_c + Omega_c Delta_p (g_r+1)/2 + g_r Omega_c (T - T_m - Delta_p)` | Established inspiral, approximate afterwards |
-| `coord_x1`, `coord_y1` | `M_2/(M_1+M_2) R(T) cos / sin phi_0(T)` | Established |
-| `coord_x2`, `coord_y2` | `-M_1/(M_1+M_2) R(T) cos / sin phi_0(T)` | Established |
+| `func_R` | `R(T)` = `R0 · ⁴√(1 − T/τp)` for T < Tm; `R0 · qc · (1 − (T−Tm)/Δp) · √(1 − (T−Tm)/Δp)` for Tm ≤ T < Tm + Δp; 0 afterwards | Established inspiral, phenomenological plunge |
+| `func_phi` | `φ0(T)`: inspiral `Φc · (1 − ⁸√((1 − T/τp)⁵)) / (1 − qc² · √qc)`; plunge `Φc + Ωc · ( (T−Tm) + (gr−1) · (T−Tm)² / (2·Δp) )`; ringdown `Φc + Ωc · Δp · (gr+1)/2 + gr · Ωc · (T − Tm − Δp)` | Established inspiral, approximate afterwards |
+| `coord_x1`, `coord_y1` | `x1 = M2/(M1+M2) · R(T) · cos φ0(T)`, `y1 = M2/(M1+M2) · R(T) · sin φ0(T)` | Established |
+| `coord_x2`, `coord_y2` | `x2 = −M1/(M1+M2) · R(T) · cos φ0(T)`, `y2 = −M1/(M1+M2) · R(T) · sin φ0(T)` | Established |
 
 ## Fields
 
 | ID | Expression | Tag |
 |---|---|---|
-| `cur_x1`, `cur_y1`, `cur_x2`, `cur_y2`, `cur_fm` | `X_1c = x_1(T)` etc. and `F_mc = f_m(T)`: T-only values stored as variables | Performance (evaluated once per frame, not per sample) |
-| `dist_r1`, `dist_r2` | `r_i = (x - X_ic)^2 + (y - Y_ic)^2 + e_0^2` (softened distance **squared**) | Visualization only (softening) |
-| `dist_rc` | `r_c = sqrt(x^2 + y^2 + 0.05)` | Visualization only |
-| `func_fm` | `f_m(T) = 1 - epsilon_r min(1, max(0, (T-T_m)/Delta_p))` | Established magnitude, phenomenological shape |
-| `func_zgrav` | `z_g = -F_mc A (M_1 / r_1 + M_2 / r_2)` | Approximation (softened potential wells) |
-| `func_amp` | `A_w(u)`: `0<u<T_m: a_i q_c (1 - u/tau_p)^-0.25` ramped in over `u < 0.8`; plunge smoothstep to `A_p`; `u >= T_m+Delta_p: A_p exp(-g_r Omega_c (u - T_m - Delta_p)/Q_f)`; else 0 | Chirp scaling `f^(2/3)` established; ringdown form established |
-| `tab_r`, `tab_a`, `tab_p`, `tab_n` | `R_t = [0, 0.02 ... 9.2]`; `W_a = S A_w(T - R_t/v_w) / (1 + 0.35 R_t)`; `W_p = 2 phi_0(T - R_t/v_w)`; `n_r(r) = round(50 r) + 1` | Radial wave table (retarded time `u = T - r/v_w`; `v_w` is a display speed) |
-| `func_zwave` | `z_w = W_a[n_r(r_c)] cos(2 atan2(y,x) - W_p[n_r(r_c)])`, equal to `S A_w(u_r) cos(2 theta - 2 phi_0(u_r)) / (1 + 0.35 r_c)` up to the table step | Phenomenological |
-| `func_ztotal` | `Z = z_g + z_w` | |
+| `cur_x1`, `cur_y1`, `cur_x2`, `cur_y2`, `cur_fm` | `X1c = x1(T)` and so on, and `Fmc = fm(T)`: T-only values stored as variables | Performance (evaluated once per frame, not per sample) |
+| `dist_r1`, `dist_r2` | `ri = (x − Xic)² + (y − Yic)² + e0²`, the softened distance **squared** | Visualization only (softening) |
+| `dist_rc` | `rc = √(x² + y² + 0.05)` | Visualization only |
+| `func_fm` | `fm(T) = 1 − εr · clamp((T − Tm) / Δp, 0, 1)` | Established magnitude, phenomenological shape |
+| `func_zgrav` | `zg = − Fmc · A · ( M1 / r1 + M2 / r2 )` | Approximation (softened potential wells) |
+| `func_amp` | `Aw(u)`: for 0 < u < Tm, `ai · qc / ⁴√(1 − u/τp)`, ramped in over u < 0.8; over the plunge a smoothstep from `ai` to `Ap`; for u ≥ Tm + Δp, `Ap · exp( −gr · Ωc · (u − Tm − Δp) / Qf )`; otherwise 0 | Chirp scaling (cube root of f²) established; ringdown form established |
+| `tab_r`, `tab_a`, `tab_p`, `tab_n` | Radial table `Rt = [0, 0.02 ... 9.2]`; `Wa = S · Aw(T − Rt/vw) / (1 + 0.35 · Rt)`; `Wp = 2 · φ0(T − Rt/vw)`; index `nr(r) = round(50 · r) + 1` | Radial wave table (retarded time u = T − r/vw; vw is a display speed) |
+| `func_zwave` | `zw = Wa[nr(rc)] · cos( 2 · atan2(y, x) − Wp[nr(rc)] )`, equal to `S · Aw(ur) · cos(2θ − 2·φ0(ur)) / (1 + 0.35 · rc)` up to the table step | Phenomenological |
+| `func_ztotal` | `Z = zg + zw` | |
 
 ## Fabric and markers
 
 | ID | Expression | Role |
 |---|---|---|
-| `grid_xs`, `grid_ys` | `X_s(t) = -6 + 12 (mod(t,1) + mod(floor(t),2)(1 - 2 mod(t,1)))`; `Y_s(t,c) = min(6, -6 + 0.25 (10 c + floor(t)))` | Serpentine path: sweeps one grid line per unit of `t`, alternating direction |
-| `grid_list` | `C_k = [0, 1, 2, 3, 4]` | Chunk index: 5 curves per direction, 10 grid lines each |
-| `grid_lines_x`, `grid_lines_y` | `(X_s(t), Y_s(t, C_k), Z(...))`, `(Y_s(t, C_k), X_s(t), Z(...))`, t in [0, 10) | The 49 x 49 fabric mesh (surplus rows clamp onto the border line) |
+| `grid_xs`, `grid_ys` | `Xs(t) = −6 + 12 · ( mod(t,1) + mod(floor(t),2) · (1 − 2·mod(t,1)) )`; `Ys(t,c) = min(6, −6 + 0.25 · (10·c + floor(t)))` | Serpentine path: sweeps one grid line per unit of t, alternating direction |
+| `grid_list` | `Ck = [0, 1, 2, 3, 4]` | Chunk index: 5 curves per direction, 10 grid lines each |
+| `grid_lines_x`, `grid_lines_y` | `(Xs(t), Ys(t,Ck), Z(...))` and `(Ys(t,Ck), Xs(t), Z(...))`, t from 0 to 10 | The 49 × 49 fabric mesh (surplus rows clamp onto the border line) |
 | `trail_obj1`, `trail_obj2` | Orbital tracks along the well floor | Hidden by default |
-| `bh_point1`, `bh_point2` | `(x_i(T), y_i(T), 0.6 z_g + 0.7 + S A_w(min(T, T_m) - 0.3/v_w))` for `T < T_m + Delta_p`, size `1 + 3 M_i` | Black holes: small dots floating on top of the fabric |
-| `bh_merged` | `(0, 0, 0.6 z_g + 0.7 + S A_w(min(T, T_m) - 0.3/v_w))` for `T >= T_m + Delta_p`, size `1 + 3 (M_1 + M_2) f_m` | The merged, larger black hole, hovering over a deeper dip |
+| `bh_point1`, `bh_point2` | `( xi(T), yi(T), 0.6·zg + 0.7 + S·Aw(min(T, Tm) − 0.3/vw) )` for T < Tm + Δp, size `1 + 3·Mi` | Black holes: small dots floating on top of the fabric |
+| `bh_merged` | `( 0, 0, 0.6·zg + 0.7 + S·Aw(min(T, Tm) − 0.3/vw) )` for T ≥ Tm + Δp, size `1 + 3·(M1 + M2)·fm` | The merged, larger black hole, hovering over a deeper dip |
 | `ring_bh1`, `ring_bh2`, `rg1`, `rg2` | Horizon rings and radii | Hidden |
 
 Removed in this version: `func_ur` (retarded time is now implicit in the wave table); `wave_k`, `wave_sig` (replaced by the ringdown quality factor `wave_Q`) and `func_zinsp` (its role is now inside `func_zwave`).
