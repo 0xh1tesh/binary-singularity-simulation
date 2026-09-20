@@ -30,15 +30,15 @@
       false
     ],
     "worldRotation3D": [
-      -0.475528,
+      -0.414519,
       -0.866025,
-      -0.154508,
-      0.823639,
+      -0.279596,
+      0.717968,
       -0.5,
-      0.267617,
-      -0.309017,
+      0.484275,
+      -0.559193,
       0.0,
-      0.951057
+      0.829038
     ]
   },
   "expressions": {
@@ -65,7 +65,8 @@
           "loopMode": "LOOP_FORWARD",
           "min": "0",
           "max": "18",
-          "step": "0.05"
+          "step": "0.01",
+          "animationPeriod": 45000
         },
         "folderId": "f_controls"
       },
@@ -125,7 +126,7 @@
         "type": "expression",
         "id": "amp_A",
         "color": "#2d70b3",
-        "latex": "A=1.7",
+        "latex": "A=1.2",
         "folderId": "f_controls",
         "slider": {
           "hardMin": true,
@@ -177,7 +178,7 @@
         "type": "expression",
         "id": "eps",
         "color": "#6042a6",
-        "latex": "e_{0}=0.8",
+        "latex": "e_{0}=1",
         "folderId": "f_controls",
         "slider": {
           "hardMin": true,
@@ -211,7 +212,7 @@
       {
         "type": "expression",
         "id": "phys_gr",
-        "latex": "g_{r}=1.8",
+        "latex": "g_{r}=1.5",
         "color": "#6042a6",
         "hidden": true,
         "folderId": "f_phys"
@@ -219,7 +220,7 @@
       {
         "type": "expression",
         "id": "phys_ap",
-        "latex": "A_{p}=1.6",
+        "latex": "A_{p}=0.85",
         "color": "#6042a6",
         "hidden": true,
         "folderId": "f_phys"
@@ -414,13 +415,13 @@
       {
         "type": "expression",
         "id": "grid_lines_x",
-        "color": "#1d4e89",
+        "color": "#bdbdbd",
         "latex": "\\left(t,L_{g},Z\\left(t,L_{g},T\\right)\\right)",
         "parametricDomain": {
           "min": "-6.0",
           "max": "6.0"
         },
-        "lineWidth": "1",
+        "lineWidth": "0.3",
         "domain": {
           "min": "-6.0",
           "max": "6.0"
@@ -430,18 +431,50 @@
       {
         "type": "expression",
         "id": "grid_lines_y",
-        "color": "#2f80c9",
+        "color": "#bdbdbd",
         "latex": "\\left(L_{g},t,Z\\left(L_{g},t,T\\right)\\right)",
         "parametricDomain": {
           "min": "-6.0",
           "max": "6.0"
         },
-        "lineWidth": "1",
+        "lineWidth": "0.3",
         "domain": {
           "min": "-6.0",
           "max": "6.0"
         },
         "folderId": "f_fabric"
+      },
+      {
+        "type": "folder",
+        "id": "f_bh",
+        "title": "Black holes",
+        "collapsed": true
+      },
+      {
+        "type": "expression",
+        "id": "bh_point1",
+        "color": "#000000",
+        "latex": "\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),Z\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),T\\right)+0.7\\right)\\left\\{T<T_{m}+\\Delta_{p}\\right\\}",
+        "pointSize": "1+3*M_{1}",
+        "hidden": false,
+        "folderId": "f_bh"
+      },
+      {
+        "type": "expression",
+        "id": "bh_point2",
+        "color": "#000000",
+        "latex": "\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),Z\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),T\\right)+0.7\\right)\\left\\{T<T_{m}+\\Delta_{p}\\right\\}",
+        "pointSize": "1+3*M_{2}",
+        "hidden": false,
+        "folderId": "f_bh"
+      },
+      {
+        "type": "expression",
+        "id": "bh_merged",
+        "latex": "\\left(0,0,Z\\left(0,0,T\\right)+0.7\\right)\\left\\{T\\ge T_{m}+\\Delta_{p}\\right\\}",
+        "color": "#000000",
+        "pointSize": "1+3\\left(M_{1}+M_{2}\\right)f_{m}\\left(T\\right)",
+        "folderId": "f_bh"
       },
       {
         "type": "folder",
@@ -480,26 +513,6 @@
           "min": "0",
           "max": "1"
         },
-        "hidden": true,
-        "folderId": "f_optional"
-      },
-      {
-        "type": "expression",
-        "id": "bh_point1",
-        "color": "#000000",
-        "latex": "\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),z_{g}\\left(x_{1}\\left(T\\right),y_{1}\\left(T\\right),T\\right)\\right)",
-        "pointSize": "9",
-        "movablePointSize": "9",
-        "hidden": true,
-        "folderId": "f_optional"
-      },
-      {
-        "type": "expression",
-        "id": "bh_point2",
-        "color": "#000000",
-        "latex": "\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),z_{g}\\left(x_{2}\\left(T\\right),y_{2}\\left(T\\right),T\\right)\\right)",
-        "pointSize": "9",
-        "movablePointSize": "9",
         "hidden": true,
         "folderId": "f_optional"
       },

@@ -65,7 +65,8 @@ The entire simulation is unified under a single master simulation clock $T$:
 ### 4. Pure 3D Deformable Grid Representation
 - Spacetime is rendered through intersecting parametric space curves over coordinate array $L_g$:
   $$\mathbf{r}_x(t) = \big(t,\; L_g,\; Z(t, L_g, T)\big), \quad \mathbf{r}_y(t) = \big(L_g,\; t,\; Z(L_g, t, T)\big)$$
-- A dense 49 x 49 mesh (spacing 0.25, extent ±6) of thin blue lines, with the Desmos box, plane and axes switched off, so only the fabric is drawn and the lines themselves plunge into the wells and ripple with waves.
+- A dense 49 x 49 mesh (spacing 0.25, extent ±6) of hairline light-grey lines, with the Desmos box, plane and axes switched off, so only the fabric is drawn and the lines themselves dip into the wells and ripple with waves.
+- Two small black dots (the black holes) float on top of the fabric in the wells, then merge into one larger dot. Playback is slow (45 s per sweep) and smooth (step 0.01).
 
 ---
 
@@ -77,9 +78,9 @@ The entire simulation is unified under a single master simulation clock $T$:
 | `T_m` | $T_m$ | `10` | Time of contact (merger) |
 | `R_0` | $R_0$ | `5` | Starting separation (10 M) in grid units |
 | `M_1, M_2` | $M_1, M_2$ | `1, 1` | Masses (well depth, barycentre, orbit count) |
-| `A` | $A$ | `1.7` | Well depth (visualization scale) |
+| `A` | $A$ | `1.2` | Well depth (visualization scale) |
 | `S` | $S$ | `2.2` | Ripple amplification (visualization only) |
-| `e_0` | $e_0$ | `0.8` | Well softening |
+| `e_0` | $e_0$ | `1` | Well softening |
 | `v_w` | $v_w$ | `2.2` | Ripple propagation speed (display speed) |
 | `Q_f` | $Q_f$ | `3.3` | Ringdown quality factor |
 

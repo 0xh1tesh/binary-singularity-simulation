@@ -12,8 +12,8 @@
 |---|---|---|
 | `phys_qc` | `q_c = 0.6` (`R_c/R_0 = 6M/10M`) | Established (ISCO) |
 | `phys_dp` | `Delta_p = 0.6` plunge duration | Visualization only |
-| `phys_gr` | `g_r = 1.8` ringdown/contact frequency ratio | Approximation (real about 3.9) |
-| `phys_ap`, `phys_ai` | `A_p = 1.6`, `a_i = 0.22` relative wave amplitudes | Phenomenological |
+| `phys_gr` | `g_r = 1.5` ringdown/contact frequency ratio | Approximation (real about 3.9) |
+| `phys_ap`, `phys_ai` | `A_p = 0.85`, `a_i = 0.22` relative wave amplitudes | Phenomenological |
 | `phys_er` | `epsilon_r = 0.046` radiated mass fraction | Established (GW150914) |
 | `phys_eta` | `eta = M1 M2 / (M1+M2)^2` | Established |
 | `phys_tau` | `tau_p = T_m / (1 - q_c^4)` | Established (Peters, rescaled) |
@@ -49,6 +49,8 @@
 | `grid_list` | `L_g = [-6, -5.75, ..., 6]` (49 values) | Grid coordinates |
 | `grid_lines_x`, `grid_lines_y` | `(t, L_g, Z(t, L_g, T))`, `(L_g, t, Z(L_g, t, T))`, t in [-6, 6] | Fabric lines |
 | `trail_obj1`, `trail_obj2` | Orbital tracks along the well floor | Hidden by default |
-| `bh_point1`, `bh_point2`, `ring_bh1`, `ring_bh2`, `rg1`, `rg2` | Markers | Hidden |
+| `bh_point1`, `bh_point2` | `(x_i(T), y_i(T), Z(x_i, y_i, T) + 0.7)` for `T < T_m + Delta_p`, size `1 + 3 M_i` | Black holes: small dots floating on top of the fabric |
+| `bh_merged` | `(0, 0, Z(0, 0, T) + 0.7)` for `T >= T_m + Delta_p`, size `1 + 3 (M_1 + M_2) f_m` | The merged, larger black hole |
+| `ring_bh1`, `ring_bh2`, `rg1`, `rg2` | Horizon rings and radii | Hidden |
 
 Removed in this version: `wave_k`, `wave_sig` (replaced by the ringdown quality factor `wave_Q`) and `func_zinsp` (its role is now inside `func_zwave`).

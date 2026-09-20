@@ -46,7 +46,7 @@ Geometric units `G = c = 1`, lengths in units of the total mass `M = m1 + m2` (s
 ## Merger (Approximation)
 
 - **Plunge**: for `T_m <= T < T_m + Delta_p`, `R = R_c (1 - x)^1.5` with `x = (T - T_m)/Delta_p`, reaching 0. This is a phenomenological plunge, not a geodesic.
-- **Frequency ramp**: the GW frequency rises from the contact value to `g_r` times it. The real ratio is about 3.9 (ringdown `M w = 0.53` against `2 Omega_isco = 2 * 6^(-3/2) = 0.136`); it is capped at `g_r = 1.8` so the shortest wavelength stays resolvable by the 0.25 grid.
+- **Frequency ramp**: the GW frequency rises from the contact value to `g_r` times it. The real ratio is about 3.9 (ringdown `M w = 0.53` against `2 Omega_isco = 2 * 6^(-3/2) = 0.136`); it is capped at `g_r = 1.5` so the shortest wavelength stays resolvable by the 0.25 grid.
 - **Radiated mass**: the well mass is scaled by `f_m = 1 - 0.046 * clamp((T - T_m)/Delta_p)`. GW150914 radiated about 3 of 65 solar masses.
 
 ## Wells (Approximation, Visualization only)

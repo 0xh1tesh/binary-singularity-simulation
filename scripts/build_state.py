@@ -44,8 +44,8 @@ ex["time_T"]["slider"].update(min="0", max="18", step="0.05")
 for i, v, lo, hi in [
     ("time_Tm", "T_{m}=10", 4, 14), ("rad_R0", "R_{0}=5", 2, 7),
     ("mass_m1", "M_{1}=1", 0.2, 3), ("mass_m2", "M_{2}=1", 0.2, 3),
-    ("amp_A", "A=1.7", 0.2, 4), ("scale_S", "S=2.2", 0, 5),
-    ("eps", "e_{0}=0.8", 0.3, 2), ("wave_v", "v_{w}=2.2", 0.8, 4),
+    ("amp_A", "A=1.2", 0.2, 4), ("scale_S", "S=2.2", 0, 5),
+    ("eps", "e_{0}=1", 0.3, 2), ("wave_v", "v_{w}=2.2", 0.8, 4),
 ]:
     upsert(i, v, hidden=False)
     slider(i, lo, hi)
@@ -55,8 +55,8 @@ slider("wave_Q", 1, 8)
 # --- physical constants and derived scales -----------------------------------
 upsert("phys_qc", r"q_{c}=0.6")                 # R_c / R_0 = 6M / 10M (ISCO contact)
 upsert("phys_dp", r"\Delta_{p}=0.6")            # plunge duration (animation time)
-upsert("phys_gr", r"g_{r}=1.8")                 # ringdown / contact frequency ratio (real ~3.9, capped: mesh resolution)
-upsert("phys_ap", r"A_{p}=1.6")                 # peak merger amplitude (relative)
+upsert("phys_gr", r"g_{r}=1.5")                 # ringdown / contact frequency ratio (real ~3.9, capped: mesh resolution)
+upsert("phys_ap", r"A_{p}=0.85")                 # peak merger amplitude (relative)
 upsert("phys_ai", r"a_{i}=0.22")                # inspiral amplitude at contact (relative)
 upsert("phys_er", r"\epsilon_{r}=0.046")        # fraction of mass radiated (GW150914: ~3 of 65 Msun)
 upsert("phys_eta", r"\eta=\frac{M_{1}M_{2}}{\left(M_{1}+M_{2}\right)^{2}}")
@@ -95,12 +95,31 @@ upsert("func_ztotal", r"Z\left(x,y,T\right)=z_{g}\left(x,y,T\right)+z_{w}\left(x
 HALF, STEP = 6.0, 0.25
 n = int(round(2 * HALF / STEP)) + 1
 ex["grid_list"]["latex"] = r"L_{g}=\left[" + ",".join(f"{-HALF + STEP * i:g}" for i in range(n)) + r"\right]"
-for i, col in (("grid_lines_x", "#1d4e89"), ("grid_lines_y", "#2f80c9")):
+for i in ("grid_lines_x", "grid_lines_y"):
+    # hairline light-grey lines: 0.3 renders as the thinnest line on a GPU-backed browser
     ex[i].update(domain={"min": str(-HALF), "max": str(HALF)},
-                 parametricDomain={"min": str(-HALF), "max": str(HALF)}, color=col, lineWidth="1")
+                 parametricDomain={"min": str(-HALF), "max": str(HALF)}, color="#bdbdbd", lineWidth="0.3")
 
-# --- markers hidden; trails ride the fabric ----------------------------------
-for i in ("bh_point1", "bh_point2", "ring_bh1", "ring_bh2"):
+# --- slow, fluid playback: 45 s per sweep of T, fine step ---------------------
+ex["time_T"]["slider"].update(animationPeriod=45000, step="0.01")
+
+# --- black holes: small black dots that ride the fabric, then merge into one bigger dot
+LIFT = 0.7  # dots float this far above the local fabric height Z, so they always sit on top of the mesh
+
+def bh_point(px, py, cond):
+    return (r"\left(" + px + "," + py + r",Z\left(" + px + "," + py + r",T\right)+" + str(LIFT) + r"\right)"
+            r"\left\{" + cond + r"\right\}")
+
+BEFORE, AFTER = r"T<T_{m}+\Delta_{p}", r"T\ge T_{m}+\Delta_{p}"
+# size grows with mass (horizon radius ~ mass); the merged dot carries the radiated-mass deficit f_m
+for i, (xf, yf), m in (("bh_point1", ("x_{1}\\left(T\\right)", "y_{1}\\left(T\\right)"), "M_{1}"),
+                       ("bh_point2", ("x_{2}\\left(T\\right)", "y_{2}\\left(T\\right)"), "M_{2}")):
+    ex[i].update(latex=bh_point(xf, yf, BEFORE), color="#000000", pointSize="1+3*" + m,
+                 hidden=False)
+    ex[i].pop("movablePointSize", None)
+upsert("bh_merged", bh_point("0", "0", AFTER), hidden=False, color="#000000",
+       pointSize=r"1+3\left(M_{1}+M_{2}\right)f_{m}\left(T\right)")
+for i in ("ring_bh1", "ring_bh2"):
     ex[i]["hidden"] = True
 for i, (xf, yf) in (("trail_obj1", ("x_{1}", "y_{1}")), ("trail_obj2", ("x_{2}", "y_{2}"))):
     px, py = xf + r"\left(t\cdot T\right)", yf + r"\left(t\cdot T\right)"
@@ -116,7 +135,7 @@ def world_rotation(yaw, elev):
     return [round(v, 6) for v in (r0[0], r1[0], r2[0], r0[1], r1[1], r2[1], r0[2], r1[2], r2[2])]
 
 vp = dict(xmin=-6.8, xmax=6.8, ymin=-6.8, ymax=6.8, zmin=-4.8, zmax=4.8)
-s["graph"].update(viewport=vp, worldRotation3D=world_rotation(30, 18),
+s["graph"].update(viewport=vp, worldRotation3D=world_rotation(30, 34),
                   showBox3D=False, showPlane3D=False, showAxis3D=False,
                   axis3D=[False, False, False], showGrid=False)
 s["graph"]["__v12ViewportLatexStash"] = {k: str(v) for k, v in vp.items()}
@@ -132,8 +151,9 @@ groups = [
      ["func_R", "func_phi", "coord_x1", "coord_y1", "coord_x2", "coord_y2", "dist_r1", "dist_r2",
       "dist_rc", "func_fm", "func_zgrav", "func_amp", "func_ur", "func_zwave", "func_ztotal"]),
     ("f_fabric", "Spacetime fabric", True, ["grid_list", "grid_lines_x", "grid_lines_y"]),
+    ("f_bh", "Black holes", True, ["bh_point1", "bh_point2", "bh_merged"]),
     ("f_optional", "Optional markers (hidden)", True,
-     ["trail_obj1", "trail_obj2", "bh_point1", "bh_point2", "rg1", "rg2", "ring_bh1", "ring_bh2"]),
+     ["trail_obj1", "trail_obj2", "rg1", "rg2", "ring_bh1", "ring_bh2"]),
 ]
 title = {"type": "text", "id": "note_title",
          "text": ("Binary merger and spacetime ripple. A mathematical visualization inspired by general "

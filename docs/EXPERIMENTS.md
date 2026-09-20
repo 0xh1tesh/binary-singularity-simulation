@@ -44,3 +44,11 @@
 - **Verification with Playwright MCP** on a real GPU (AMD Radeon 860M): 52 expressions, 0 errors; redraw while stepping `T` had a median of 11 ms and p90 of 17 ms. Live tuning dropped the inspiral amplitude `a_i` from 0.35 to 0.22 so the two wells stay visible before contact.
 - **Findings**: at `T = 10.4` a single deep remnant funnel with an outgoing wave train; by `T = 15` the ringdown has decayed and the remnant is settled. The real ringdown/contact frequency ratio (about 3.9) is capped at 1.8 so the wavelength stays resolvable by the 0.25 mesh.
 - **Tooling note**: the Playwright MCP sandbox has no `require`, so `scripts/make_mcp_loader.py` embeds the state in a snippet loaded via `browser_run_code_unsafe`'s `filename` argument (inside the MCP's allowed root).
+
+## Experiment 007: Subtle fabric, black-hole dots, slow playback
+- **Date**: 2026-09-20
+- **Fabric**: hairline light-grey lines (`lineWidth` 0.3, `#bdbdbd`). On a real-GPU browser this renders as the thinnest line; the headless software renderer clamps widths below 1, so checkpoints are now captured with Playwright MCP in a GPU-backed browser, not `render_checkpoints.js`.
+- **Black holes**: `bh_point1`, `bh_point2` (size `1 + 3 M_i`) and `bh_merged` (size `1 + 3 (M1+M2) f_m`, so the merged dot is visibly larger and reflects the radiated mass). Desmos accepted expression-valued `pointSize` and domain-restricted points (`{T < T_m + Delta_p}`).
+- **Dots on top of the fabric**: dots exactly on the surface looked sunk into the deep, narrow wells and were veiled by the mesh. Fixes: dots lifted 0.7 above `Z`; wells widened and made shallower (`A` 1.7 to 1.2, `e_0` 0.8 to 1); camera elevation 18 to 34 degrees; merger peak `A_p` 1.6 to 0.85 and `g_r` 1.8 to 1.5 so the ringdown wall no longer hides the merged hole.
+- **Playback**: slider `animationPeriod` 45000 ms with step 0.01. Measured by pressing the play button: 0.404 T per second, 44.6 s per sweep.
+- **Tooling note**: the `isPlaying` API flag did not start playback; clicking the "Play T Animation" button did.
