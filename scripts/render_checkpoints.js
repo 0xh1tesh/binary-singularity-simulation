@@ -23,8 +23,13 @@ const checkpoints = process.argv.length > 3
   const state = JSON.parse(fs.readFileSync(path.join(root, 'desmos_state.json'), 'utf8'));
   fs.mkdirSync(outDir, { recursive: true });
 
+  // Use the real GPU where possible: software rendering clamps line widths below 1, so the hairline
+  // fabric would look heavy. Background throttling is disabled so timings are stable.
+  const gpuArgs = process.platform === 'win32' ? ['--use-angle=d3d11'] : [];
   const browser = await chromium.launch({
-    args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
+    args: [...gpuArgs, '--ignore-gpu-blocklist', '--enable-gpu-rasterization',
+           '--disable-renderer-backgrounding', '--disable-background-timer-throttling',
+           '--disable-backgrounding-occluded-windows'],
   });
   const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
   await page.goto('https://www.desmos.com/3d', { waitUntil: 'networkidle' });

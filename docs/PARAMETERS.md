@@ -33,6 +33,6 @@ Defaults are written by `scripts/build_state.py`.
 
 Fixed in the equations: the plunge exponent 1.5, the frequency-ramp shape, the wave fade-in time 0.8, the radial decay 0.35, and the well exponent 1.4 (`WELL_EXP` in the build script).
 
-Black-hole dots: `LIFT = 0.7` (height above the local fabric) and size `1 + 3 M` in `scripts/build_state.py`.
+Black-hole dots: `LIFT = 0.7`, `FOLLOW = 0.6` (fraction of well depth followed) and size `1 + 3 M` in `scripts/build_state.py`.
 
-Grid density: `HALF = 6`, `STEP = 0.25` in `scripts/build_state.py` (49 lines per direction).
+Grid density: `HALF = 6`, `STEP = 0.25` in `scripts/build_state.py` (49 lines per direction). `ROWS = 10` is how many grid lines each serpentine curve sweeps (5 curves per direction); it changes speed only, not the picture.

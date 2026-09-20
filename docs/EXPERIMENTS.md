@@ -52,3 +52,14 @@
 - **Dots on top of the fabric**: dots exactly on the surface looked sunk into the deep, narrow wells and were veiled by the mesh. Fixes: dots lifted 0.7 above `Z`; wells widened and made shallower (`A` 1.7 to 1.2, `e_0` 0.8 to 1); camera elevation 18 to 34 degrees; merger peak `A_p` 1.6 to 0.85 and `g_r` 1.8 to 1.5 so the ringdown wall no longer hides the merged hole.
 - **Playback**: slider `animationPeriod` 45000 ms with step 0.01. Measured by pressing the play button: 0.404 T per second, 44.6 s per sweep.
 - **Tooling note**: the `isPlaying` API flag did not start playback; clicking the "Play T Animation" button did.
+
+## Experiment 008: Playback performance (8.5 to 40 fps)
+- **Date**: 2026-09-20
+- **Method**: `scripts/bench_fps.js` presses the real Play button in a GPU-backed Chromium (background throttling disabled) and counts completed 3D redraws per second. Measurements in a normal browser window are unreliable: the window gets throttled and readings collapse to about 1 fps regardless of content.
+- **Baseline**: 8.5 fps on an AMD Radeon 860M (about 118 ms per frame).
+- **Decomposition** (redraws/s): trivial height function 40, wells only 21, wave only 10.8, everything 8.5. Wave parameters (amplitude, speed, frequency) made no difference, so the cost is per-sample evaluation and per-curve overhead, not curve steepness.
+- **Key finding**: Desmos takes a fixed number of samples per curve regardless of its length (halving line length changed nothing; halving the line count nearly doubled speed). Cost is proportional to the number of curves.
+- **Fixes and effect**: serpentine curves (98 curves to 10): 8.6 to 25.6 fps; T-only values as variables plus integer-power wells: 29.9; radial wave table with nearest entry: 34.9; 5 curves per direction instead of 7: 40 (the same ceiling as the trivial-height test).
+- **Tried and rejected**: lists of points drawn as polylines (Desmos draws each point as a 3D object: about 2 s per frame and a cap of about 1000 points per list); an atan-free trig table (slower than the atan version); a single-power rewrite of `A_w` and `phi_0` (no gain).
+- **Unchanged**: the 49 x 49 mesh density and the look. Wells changed from `r^-1.4` to `1/(d^2 + e_0^2)`, which needs no sqrt or pow and looks essentially the same.
+- **Black holes**: the merged dot now follows only 60% of the well depth plus the local wave amplitude, so it hovers above the deeper merged dip instead of sinking into it.

@@ -8,13 +8,17 @@ There is no filled surface and no solid marker. The spacetime fabric is two fami
 X family:  (t, L_g, Z(t, L_g, T))     Y family:  (L_g, t, Z(L_g, t, T))
 ```
 
-with `t` in [-6, 6] and `L_g` a list of 49 grid coordinates (spacing 0.25). Every line deforms in z as wells and waves pass, so the grid itself curls into the funnels and ripples.
+for 49 grid coordinates in each direction (spacing 0.25, extent +-6). Every line deforms in z as wells and waves pass, so the grid itself curls into the funnels and ripples.
+
+### How the mesh is drawn (performance)
+
+Desmos samples every curve a fixed number of times regardless of its length, so drawing cost is proportional to the *number of curves*. Drawing 49 + 49 separate lines cost about 118 ms per frame. Instead, each direction is drawn as 5 *serpentine* curves that each sweep 10 grid lines in turn, alternating direction. The short turn-around segments run along the mesh border, where the other direction's border line already exists, so the picture is the same 49 x 49 mesh with 10 curves instead of 98. The T-only quantities (orbit positions, radiated-mass factor) are stored as variables and the wave is read from a per-frame radial table, so per-sample work is small.
 
 ## Look
 
 - Light-grey (`#bdbdbd`) hairline lines: `lineWidth` 0.3, which a GPU-backed browser draws as the thinnest line (software renderers clamp to 1 and look heavier). The mesh is subtle and reads as fabric.
 - The Desmos box, plane grid and axes are switched off in the state (`showBox3D`, `showPlane3D`, `showAxis3D`, `axis3D`), so only the fabric is drawn.
-- **Black holes**: two small black dots (size grows with mass) ride the wells, floating 0.7 above the local fabric height so they always sit on top of the mesh. At `T_m + Delta_p` they are replaced by one larger dot for the merged hole. The horizon rings stay hidden. The orbital trails are hidden by default and ride the fabric (`z = z_g` along the path) when switched on.
+- **Black holes**: two small black dots (size grows with mass) ride the wells and float above the fabric. At `T_m + Delta_p` they are replaced by one larger dot for the merged hole. The dot follows only 60% of the local well depth, so the deeper merged dip lifts the bigger hole higher above the sheet: it hovers over a bigger bend and never sinks into it. The horizon rings stay hidden. The orbital trails are hidden by default and ride the fabric (`z = z_g` along the path) when switched on.
 - The viewport is x, y in [-7.5, 7.5] and z in [-5, 5].
 
 ## Stage guide
