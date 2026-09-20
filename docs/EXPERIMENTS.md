@@ -36,3 +36,11 @@
 - **Changes** (via `scripts/build_state.py`): defaults reset; wave gated by retarded time with a fast rise and slow ringdown plus a `cos(2(theta - phi_m))` quadrupole factor; well profile `r^-1.4`; 49 x 49 mesh over +-6 with the line domain equal to the grid extent; box, plane and axes hidden; markers hidden; trails hidden by default.
 - **Tooling findings**: Playwright Chromium runs Desmos 3D headlessly (SwiftShader WebGL). Desmos 3D line width has a floor of 1; `colorLatex` is ignored on 3D curves; `showBox3D`, `showPlane3D`, `showAxis3D` and `axis3D` persist in the state, but `worldRotation3D` did not change the camera on load.
 - **Verified stages**: T = 1, 7, 9.6, 10.4, 12, 15 in `assets/screenshots/checkpoints/`.
+
+## Experiment 006: Physics engine v2 (Peters, chirp, ringdown)
+- **Date**: 2026-09-19
+- **Sources**: Wikipedia articles on gravitational waves (Peters decay, GW150914 numbers), the ISCO, quasinormal modes and the Schwarzschild metric (Flamm's paraboloid); Berti, Cardoso and Will (2006) for ringdown numbers (see `docs/REFERENCES.md`).
+- **Changes**: `R(T) = R_0 (1 - T/tau)^(1/4)` with ISCO contact and a plunge; closed-form Kepler+Peters phase (`5/8` power), giving a real chirp; one retarded-time wave field with `f^(2/3)` inspiral amplitude, a merger peak and a quasinormal ringdown (`Q = 3.3`); 4.6% of the mass radiated; ad-hoc `k`, `sigma` and the separate inspiral term removed.
+- **Verification with Playwright MCP** on a real GPU (AMD Radeon 860M): 52 expressions, 0 errors; redraw while stepping `T` had a median of 11 ms and p90 of 17 ms. Live tuning dropped the inspiral amplitude `a_i` from 0.35 to 0.22 so the two wells stay visible before contact.
+- **Findings**: at `T = 10.4` a single deep remnant funnel with an outgoing wave train; by `T = 15` the ringdown has decayed and the remnant is settled. The real ringdown/contact frequency ratio (about 3.9) is capped at 1.8 so the wavelength stays resolvable by the 0.25 mesh.
+- **Tooling note**: the Playwright MCP sandbox has no `require`, so `scripts/make_mcp_loader.py` embeds the state in a snippet loaded via `browser_run_code_unsafe`'s `filename` argument (inside the MCP's allowed root).

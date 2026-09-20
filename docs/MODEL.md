@@ -2,64 +2,76 @@
 
 ## Scientific framing
 
-This project is an **interactive mathematical visualization inspired by general relativity**. It is a Desmos-based approximation of binary compact-object merger dynamics and spacetime perturbations.
+This project is an **interactive mathematical visualization inspired by general relativity**. It is not a numerical-relativity solution of the Einstein field equations. Each part below is tagged with what kind of statement it is:
 
-It is **not** a numerical-relativity solution of the Einstein field equations. Every part of the model is one of four kinds:
-
-| Kind | What it covers |
+| Tag | Meaning |
 |---|---|
-| **Conceptual visualization** | The fabric itself. A 2D "spacetime sheet" whose height stands for potential depth is an embedding metaphor, not the real 4D geometry. |
-| **Newtonian-inspired approximation** | Two point masses orbiting their barycenter, with a shrinking separation `R(T)` and a chirping phase `phi0(T)`. |
-| **Phenomenological wave model** | The merger-triggered wavepacket `z_w`: its envelope, its quadrupole factor and its radial decay are chosen to look right, not derived from the field equations. |
-| **Visualization-only amplification** | The slider `S` and the well depth `A`. Displayed amplitudes are far larger than any physical strain. |
+| **Established** | A standard published result, used as written (references in [REFERENCES.md](./REFERENCES.md)). |
+| **Approximation** | A simplification of a real result (Newtonian limit, capped ratio, etc.). |
+| **Phenomenological** | Chosen to look right, with the physical shape but not derived here. |
+| **Visualization only** | Exaggeration or layout with no physical meaning. |
 
-Displayed height: `A_display = A_model * S_visual`. Nothing on screen should be read as a physical magnitude.
+Displayed height is `A_display = A_model * S`. Nothing on screen is a physical magnitude.
 
 ## One master clock
 
-Everything is a function of the single slider `T`. There are no independent clocks for the orbit and the wave.
+Everything is a function of the slider `T`. The orbit and the wave share it, and the wave is emitted from the orbit at the retarded time `u_r = T - r/v_w`.
 
 ```
-                    Master time T
-                          |
-          +---------------+---------------+
-          v                               v
-   separation R(T)                 orbital phase phi0(T)
-          |                               |
-          +---------------+---------------+
-                          v
-              x1(T),y1(T)   x2(T),y2(T)
-                          |
-                          v
-       binary curvature z_g   (two wells -> one at T = T_m)
-                          |
-      retarded time u_r = T - T_m - r/v_w   (0 at the merger)
-                          |
-                          v
-       merger-generated quadrupolar wave z_w
-                          |
-                          v
-   Z(x,y,T) = z_g + z_w  ->  deformable grid lines
+                       Master time T
+                             |
+       Peters decay R(T) ----+---- Kepler+Peters phase phi0(T)
+                             |
+                x1(T),y1(T)  x2(T),y2(T)
+                             |
+   z_g: two potential wells --+-- z_w: wave field h(u_r), u_r = T - r/v_w
+   (mass reduced by radiation)        chirp -> merger peak -> ringdown
+                             |
+                   Z = z_g + z_w  ->  deformable grid
 ```
 
-## Regimes
+## Units
 
-1. **Inspiral** (`T < T_m`). Separation `R(T) = R0 * (1 - T/T_m)^0.38`, which falls faster and faster toward the merger. Phase `phi0(T) = 1.2 T + 7 (1 - (1 - T/T_m)^0.5)`, so the angular speed rises and the orbit visibly tightens. Positions are the barycentric split of `R(T)` by the masses.
-2. **Curvature wells.** `z_g = -A M1 / r1^1.4 - A M2 / r2^1.4` with softened distances `r_i = sqrt(|r - r_i(T)|^2 + e0^2)`. The exponent 1.4 (steeper than the Newtonian 1) keeps the two wells visually separate until they are close. When `R -> 0` the two terms coincide and form one deeper remnant well.
-3. **Merger** (`T = T_m`). There is no switch: the merger is simply `R(T) = 0`, so the two wells become one continuously.
-4. **Merger-generated wave.** With `u_r = T - T_m - r_c/v_w`:
-   - envelope: `exp(-u_r^2 / 0.5)` for `u_r < 0` (fast rise at the wavefront) and `exp(-u_r / sigma)` for `u_r >= 0` (slow ringdown behind it);
-   - carrier: `sin(-k v_w u_r)`, an outward-travelling wave;
-   - quadrupole: `1 + 0.6 cos(2 (atan2(y,x) - phi0(T_m)))`, four lobes as for a rotating binary;
-   - radial decay: `1 / (1 + 0.35 r_c)`.
+Geometric units `G = c = 1`, lengths in units of the total mass `M = m1 + m2` (so `GM/c^2 = 1`). The binary starts at `R0 = 10 M` and the merger begins at the Schwarzschild innermost stable circular orbit `R_c = 6 M`, so `q_c = R_c/R0 = 0.6`. The `R_0` slider rescales this to screen units; `T` is animation time, not seconds.
 
-   The wave is essentially zero before `T_m` and starts at the centre at `T_m`.
-5. **Ringdown.** The `exp(-u_r/sigma)` tail decays the disturbance at every radius after the front passes.
+## Inspiral (Established, Newtonian limit)
+
+- **Separation decay** (Peters): `dR/dt = -(64/5) m1 m2 (m1+m2) / R^3`, whose solution is `R(t) = R0 (1 - t/tau)^(1/4)` with `tau = (5/256) R0^4 / (m1 m2 (m1+m2))`. Here `tau_p = T_m / (1 - q_c^4)`, so that `R(T_m) = R_c`.
+- **Orbital frequency** (Kepler): `Omega = sqrt(M / R^3)`. Integrating with the Peters decay gives the closed form
+  `Phi(T) = Phi_c (1 - (1 - T/tau_p)^(5/8)) / (1 - q_c^(5/2))`, and `Omega ~ (1 - T/tau_p)^(-3/8)`: the chirp.
+- **Total phase**: `Phi_c = (1/(32 eta)) ((R0/M)^(5/2) - (R_c/M)^(5/2)) = 7.127 / eta` rad, about 4.5 orbits for equal masses, with `eta = m1 m2 / M^2`. GW150914 spent about 5 orbits in the detector band, so the visible inspiral length is realistic.
+- **GW frequency** is twice the orbital frequency, so the wave phase is `2 phi0`.
+- **Positions**: barycentric split of `R` by the masses, at angle `phi0`.
+
+## Merger (Approximation)
+
+- **Plunge**: for `T_m <= T < T_m + Delta_p`, `R = R_c (1 - x)^1.5` with `x = (T - T_m)/Delta_p`, reaching 0. This is a phenomenological plunge, not a geodesic.
+- **Frequency ramp**: the GW frequency rises from the contact value to `g_r` times it. The real ratio is about 3.9 (ringdown `M w = 0.53` against `2 Omega_isco = 2 * 6^(-3/2) = 0.136`); it is capped at `g_r = 1.8` so the shortest wavelength stays resolvable by the 0.25 grid.
+- **Radiated mass**: the well mass is scaled by `f_m = 1 - 0.046 * clamp((T - T_m)/Delta_p)`. GW150914 radiated about 3 of 65 solar masses.
+
+## Wells (Approximation, Visualization only)
+
+`z_g = -f_m (A M1 / r1^1.4 + A M2 / r2^1.4)`, with softened distances `r_i = sqrt(|r - r_i|^2 + e0^2)`. This is a Newtonian-potential-style well, chosen to look like the familiar gravity-well picture. A true `1/r` potential would merge the two visual wells earlier; the exponent 1.4 keeps them distinct.
+
+The Schwarzschild embedding diagram (Flamm's paraboloid) is deliberately **not** used: the Wikipedia article states it must not be confused with a gravity well, because it shows only the spatial slice geometry.
+
+## Gravitational wave (Phenomenological, shaped by Established results)
+
+One retarded-time field, not separate pieces:
+
+`z_w = S * A_w(u_r) * cos(2 theta - 2 phi0(u_r)) / (1 + 0.35 r)`, with `u_r = T - r/v_w`.
+
+- **Angular pattern**: `cos(2 theta - 2 phi0)` is the `m = 2` mode: a two-armed spiral wound by the orbit, four lobes, rotating with the binary. It is a scalar stand-in for the plus polarization seen face-on, not a tensor field.
+- **Inspiral amplitude**: `A_w ~ f^(2/3)` (chirp-mass scaling), which with `f ~ (1 - t/tau)^(-3/8)` gives `A_w = a_i q_c (1 - u/tau_p)^(-1/4)`, equal to `a_i` at contact. It is faded in over the first 0.8 time units.
+- **Merger**: a smoothstep from `a_i` to the peak `A_p` over the plunge.
+- **Ringdown** (Established form, approximate numbers): a damped sinusoid `exp(-gamma u) cos(w u)` with `gamma = w / (2 Q)`. The quality factor `Q_f = 3.3` is the fundamental `l = m = 2` mode for a remnant spin near 0.69 (Berti, Cardoso and Will 2006); the exact coefficients were recalled, not re-verified, so treat `Q` as approximate.
+- **Radial decay**: `1/(1 + 0.35 r)` regularizes the far-field `1/r` at the source.
+- **Speed** `v_w` is a display speed, not `c`.
 
 ## Known limitations
 
-- The wave envelope has a small non-zero tail before `T_m` at small radius. It is a deliberate precursor, not a physical effect.
-- The two wells can look merged from some camera angles around `T = 7`, when the separation is about 3 and the well width about 1.6.
-- Heights are exaggerated (see above). The wave speed `v_w` and wavelength are tuned to fit the grid and the time range, not to any physical system.
-- The inspiral term `z_i` is a weak, phenomenological two-arm spiral, not a post-Newtonian waveform.
-- The orbital plane is fixed to the fabric plane, and only the plus-like quadrupole pattern is drawn. There is no separate `h_x` component.
+- Amplitude ratios (`a_i`, `A_p`) and the plunge shape are visual choices.
+- The scalar `cos(2 theta)` field is not the tensor GW field; there is no `h_x` and no inclination.
+- The orbit is circular and planar, and there is no spin.
+- The two wells can read as one from some camera angles shortly before contact.
+- Heights are exaggerated, and `T` is animation time.

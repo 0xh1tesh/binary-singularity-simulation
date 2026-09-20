@@ -1,131 +1,151 @@
-"""Patch desmos_state.json in place by expression id (stable ids, minimal edits).
+"""Patch desmos_state.json in place by expression id (stable ids, idempotent).
 
 Usage: python scripts/build_state.py
+
+Physics (geometric units G = c = 1, lengths in M = m1 + m2, see docs/MODEL.md):
+  * Peters (1964) circular inspiral:   R(t) = R0 (1 - t/tau)^(1/4)
+  * Kepler + Peters orbital phase:     Phi(t) = Phi_c (1 - (1 - t/tau)^(5/8)) / (1 - q_c^(5/2))
+  * contact at the Schwarzschild ISCO: R_c = 6M, start R0 = 10M  ->  q_c = R_c/R0 = 0.6
+  * inspiral strain amplitude ~ f^(2/3) (chirp), ringdown = damped sinusoid with quality factor Q
 """
-import json, pathlib
+import json, math, pathlib
 
 PATH = pathlib.Path(__file__).resolve().parent.parent / "desmos_state.json"
 s = json.loads(PATH.read_text(encoding="utf-8"))
-ex = {e["id"]: e for e in s["expressions"]["list"]}
-
-def latex(i, v): ex[i]["latex"] = v
-
-# --- parameters (defaults) -------------------------------------------------
-latex("time_T", "T=1")
-ex["time_T"]["slider"].update(min="0", max="18", step="0.05")
-for i, v in {
-    "time_Tm": "T_{m}=10", "rad_R0": "R_{0}=5", "amp_A": "A=1.7",
-    "scale_S": "S=2.2", "eps": "e_{0}=0.8", "wave_v": "v_{w}=1.6",
-    "wave_k": "k=2.2", "wave_sig": r"\sigma=1.6",
-}.items():
-    latex(i, v)
-    ex[i].pop("slider", None)  # let Desmos derive sensible slider bounds
-for i, (lo, hi) in {"time_Tm": (4, 14), "rad_R0": (2, 7), "amp_A": (0.2, 4),
-                    "scale_S": (0, 5), "eps": (0.3, 2), "wave_v": (0.5, 3),
-                    "wave_k": (0.5, 5), "wave_sig": (0.3, 3),
-                    "mass_m1": (0.2, 3), "mass_m2": (0.2, 3)}.items():
-    ex[i]["slider"] = {"hardMin": True, "hardMax": True, "min": str(lo), "max": str(hi)}
-
-# --- merger-gated, quadrupolar wave -----------------------------------------
-# u = retarded time (T - T_m - r/v_w). Fast rise, slow ringdown, cos(2(theta-phi_m)).
-latex("func_zwave",
-      r"z_{w}\left(x,y,T\right)=S\cdot\left\{u_{r}\left(x,y,T\right)<0:e^{-\frac{u_{r}\left(x,y,T\right)^{2}}{0.5}},e^{-\frac{u_{r}\left(x,y,T\right)}{\sigma}}\right\}"
-      r"\cdot\left(1+0.6\cos\left(2\left(\arctan\left(y,x\right)-\phi_{0}\left(T_{m}\right)\right)\right)\right)"
-      r"\cdot\frac{\sin\left(-k\cdot v_{w}\cdot u_{r}\left(x,y,T\right)\right)}{1+0.35\cdot r_{c}\left(x,y\right)}")
-# insert retarded-time helper before z_w
 lst = s["expressions"]["list"]
-if "func_ur" not in ex:
-    new = {"type": "expression", "id": "func_ur", "color": "#388c46", "hidden": True,
-           "latex": r"u_{r}\left(x,y,T\right)=T-T_{m}-\frac{r_{c}\left(x,y\right)}{v_{w}}"}
-    lst.insert(lst.index(ex["func_zwave"]), new)
+
+# Expressions that belonged to the earlier ad-hoc wave model.
+REMOVE = {"wave_k", "wave_sig", "func_zinsp"}
+lst[:] = [e for e in lst if e["id"] not in REMOVE]
+ex = {e["id"]: e for e in lst}
+
+WELL_EXP = 1.4  # exponent of the softened potential wells (1.0 would be exactly Newtonian)
 
 
-# --- well profile: r^-1.4 (steeper than 1/r) keeps the two wells distinct during the inspiral
-latex("func_zgrav",
-      r"z_{g}\left(x,y,T\right)=-\frac{A\cdot M_{1}}{r_{1}\left(x,y,T\right)^{1.4}}"
-      r"-\frac{A\cdot M_{2}}{r_{2}\left(x,y,T\right)^{1.4}}")
+def upsert(i, latex, hidden=True, color="#6042a6", **extra):
+    if i not in ex:
+        e = {"type": "expression", "id": i}
+        lst.append(e)
+        ex[i] = e
+    ex[i].update(latex=latex, color=ex[i].get("color", color), **extra)
+    if hidden:
+        ex[i]["hidden"] = True
+    return ex[i]
 
-# --- fabric grid: +-HALF, STEP spacing (line domain == grid extent, no overhang)
+
+def slider(i, lo, hi, step=None):
+    ex[i]["slider"] = {"hardMin": True, "hardMax": True, "min": str(lo), "max": str(hi),
+                       **({"step": str(step)} if step else {})}
+
+
+# --- user-facing controls ----------------------------------------------------
+upsert("time_T", "T=1", hidden=False)
+ex["time_T"]["slider"].update(min="0", max="18", step="0.05")
+for i, v, lo, hi in [
+    ("time_Tm", "T_{m}=10", 4, 14), ("rad_R0", "R_{0}=5", 2, 7),
+    ("mass_m1", "M_{1}=1", 0.2, 3), ("mass_m2", "M_{2}=1", 0.2, 3),
+    ("amp_A", "A=1.7", 0.2, 4), ("scale_S", "S=2.2", 0, 5),
+    ("eps", "e_{0}=0.8", 0.3, 2), ("wave_v", "v_{w}=2.2", 0.8, 4),
+]:
+    upsert(i, v, hidden=False)
+    slider(i, lo, hi)
+upsert("wave_Q", "Q_{f}=3.3", hidden=False)
+slider("wave_Q", 1, 8)
+
+# --- physical constants and derived scales -----------------------------------
+upsert("phys_qc", r"q_{c}=0.6")                 # R_c / R_0 = 6M / 10M (ISCO contact)
+upsert("phys_dp", r"\Delta_{p}=0.6")            # plunge duration (animation time)
+upsert("phys_gr", r"g_{r}=1.8")                 # ringdown / contact frequency ratio (real ~3.9, capped: mesh resolution)
+upsert("phys_ap", r"A_{p}=1.6")                 # peak merger amplitude (relative)
+upsert("phys_ai", r"a_{i}=0.22")                # inspiral amplitude at contact (relative)
+upsert("phys_er", r"\epsilon_{r}=0.046")        # fraction of mass radiated (GW150914: ~3 of 65 Msun)
+upsert("phys_eta", r"\eta=\frac{M_{1}M_{2}}{\left(M_{1}+M_{2}\right)^{2}}")
+upsert("phys_tau", r"\tau_{p}=\frac{T_{m}}{1-q_{c}^{4}}")            # Peters coalescence time, rescaled so R(T_m)=R_c
+upsert("phys_Phic", r"\Phi_{c}=\frac{7.127}{\eta}")                   # orbital phase accumulated 10M -> 6M
+upsert("phys_Omc", r"\Omega_{c}=\frac{5\Phi_{c}}{8\tau_{p}\left(1-q_{c}^{2.5}\right)q_{c}^{1.5}}")  # orbital ang. freq. at contact
+
+# --- kinematics --------------------------------------------------------------
+upsert("func_R",
+       r"R\left(T\right)=\left\{T<T_{m}:R_{0}\left(1-\frac{T}{\tau_{p}}\right)^{0.25},"
+       r"T<T_{m}+\Delta_{p}:R_{0}q_{c}\left(1-\frac{T-T_{m}}{\Delta_{p}}\right)^{1.5},0\right\}")
+upsert("func_phi",
+       r"\phi_{0}\left(T\right)=\left\{T<T_{m}:\frac{\Phi_{c}}{1-q_{c}^{2.5}}\left(1-\left(1-\frac{T}{\tau_{p}}\right)^{0.625}\right),"
+       r"T<T_{m}+\Delta_{p}:\Phi_{c}+\Omega_{c}\left(\left(T-T_{m}\right)+\frac{\left(g_{r}-1\right)\left(T-T_{m}\right)^{2}}{2\Delta_{p}}\right),"
+       r"\Phi_{c}+\Omega_{c}\Delta_{p}\frac{g_{r}+1}{2}+g_{r}\Omega_{c}\left(T-T_{m}-\Delta_{p}\right)\right\}")
+
+# --- wells: two Newtonian-style potentials, total mass reduced by the radiated fraction
+upsert("func_fm",
+       r"f_{m}\left(T\right)=1-\epsilon_{r}\min\left(1,\max\left(0,\frac{T-T_{m}}{\Delta_{p}}\right)\right)")
+upsert("func_zgrav",
+       r"z_{g}\left(x,y,T\right)=-f_{m}\left(T\right)\left(\frac{A\cdot M_{1}}{r_{1}\left(x,y,T\right)^{" + str(WELL_EXP)
+       + r"}}+\frac{A\cdot M_{2}}{r_{2}\left(x,y,T\right)^{" + str(WELL_EXP) + r"}}\right)")
+
+# --- gravitational wave: ONE retarded-time field, chirp -> merger -> ringdown --
+upsert("func_amp",
+       r"A_{w}\left(u\right)=\left\{0<u<T_{m}:a_{i}q_{c}\left(1-\frac{u}{\tau_{p}}\right)^{-0.25}\min\left(1,\frac{u}{0.8}\right),"
+       r"T_{m}\le u<T_{m}+\Delta_{p}:a_{i}+\left(A_{p}-a_{i}\right)\left(\frac{u-T_{m}}{\Delta_{p}}\right)^{2}\left(3-2\frac{u-T_{m}}{\Delta_{p}}\right),"
+       r"u\ge T_{m}+\Delta_{p}:A_{p}e^{-\frac{g_{r}\Omega_{c}}{Q_{f}}\left(u-T_{m}-\Delta_{p}\right)},0\right\}")
+upsert("func_ur", r"u_{r}\left(x,y,T\right)=T-\frac{r_{c}\left(x,y\right)}{v_{w}}")
+upsert("func_zwave",
+       r"z_{w}\left(x,y,T\right)=S\cdot A_{w}\left(u_{r}\left(x,y,T\right)\right)"
+       r"\cdot\frac{\cos\left(2\arctan\left(y,x\right)-2\phi_{0}\left(u_{r}\left(x,y,T\right)\right)\right)}{1+0.35\cdot r_{c}\left(x,y\right)}")
+upsert("func_ztotal", r"Z\left(x,y,T\right)=z_{g}\left(x,y,T\right)+z_{w}\left(x,y,T\right)")
+
+# --- fabric grid: +-HALF, STEP spacing (line domain == grid extent) ----------
 HALF, STEP = 6.0, 0.25
 n = int(round(2 * HALF / STEP)) + 1
-latex("grid_list", r"L_{g}=\left[" + ",".join(f"{-HALF + STEP * i:g}" for i in range(n)) + r"\right]")
+ex["grid_list"]["latex"] = r"L_{g}=\left[" + ",".join(f"{-HALF + STEP * i:g}" for i in range(n)) + r"\right]"
 for i, col in (("grid_lines_x", "#1d4e89"), ("grid_lines_y", "#2f80c9")):
-    ex[i]["domain"] = {"min": str(-HALF), "max": str(HALF)}
-    ex[i]["parametricDomain"] = {"min": str(-HALF), "max": str(HALF)}
-    ex[i]["color"] = col
-    ex[i]["lineWidth"] = "1"
+    ex[i].update(domain={"min": str(-HALF), "max": str(HALF)},
+                 parametricDomain={"min": str(-HALF), "max": str(HALF)}, color=col, lineWidth="1")
 
-# --- markers: nothing that dominates the fabric -----------------------------
+# --- markers hidden; trails ride the fabric ----------------------------------
 for i in ("bh_point1", "bh_point2", "ring_bh1", "ring_bh2"):
     ex[i]["hidden"] = True
-# orbital trails ride the fabric: z follows the well depth at the trail's own time
 for i, (xf, yf) in (("trail_obj1", ("x_{1}", "y_{1}")), ("trail_obj2", ("x_{2}", "y_{2}"))):
-    px = xf + r"\left(t\cdot T\right)"
-    py = yf + r"\left(t\cdot T\right)"
-    latex(i, r"\left(" + px + "," + py + r",z_{g}\left(" + px + "," + py + r",t\cdot T\right)+0.08\right)")
-    ex[i]["lineWidth"] = "2"
-    ex[i]["hidden"] = True  # toggle on in Desmos to see the orbital tracks
+    px, py = xf + r"\left(t\cdot T\right)", yf + r"\left(t\cdot T\right)"
+    ex[i].update(latex=r"\left(" + px + "," + py + r",z_{g}\left(" + px + "," + py + r",t\cdot T\right)+0.08\right)",
+                 lineWidth="2", hidden=True)
 
-# --- viewport: no box / plane / axes, so only the fabric is drawn ------------
-vp = s["graph"]["viewport"]
-vp.update(xmin=-7.5, xmax=7.5, ymin=-7.5, ymax=7.5, zmin=-5, zmax=5)
-s["graph"]["__v12ViewportLatexStash"] = {k: str(v) for k, v in vp.items()}
-s["graph"].update(showBox3D=False, showPlane3D=False, showAxis3D=False,
-                  axis3D=[False, False, False], showGrid=False)
-
-# --- inspiral radiation: a weak two-arm spiral that grows toward the merger ---
-# Uses the retarded phase phi_0(T - r/v_w), so the arms are wound by the orbit itself.
-if "func_zinsp" not in ex:
-    zin = {"type": "expression", "id": "func_zinsp", "color": "#388c46", "hidden": True,
-           "latex": (r"z_{i}\left(x,y,T\right)=\left\{0<T-\frac{r_{c}\left(x,y\right)}{v_{w}}<T_{m}:"
-                     r"0.35\cdot S\cdot\left(\frac{T-\frac{r_{c}\left(x,y\right)}{v_{w}}}{T_{m}}\right)^{3}"
-                     r"\cdot\frac{\cos\left(2\arctan\left(y,x\right)-2\phi_{0}\left(T-\frac{r_{c}\left(x,y\right)}{v_{w}}\right)\right)}"
-                     r"{1+0.35\cdot r_{c}\left(x,y\right)},0\right\}")}
-    lst.insert(lst.index(ex["func_ztotal"]), zin)
-    ex["func_zinsp"] = zin
-latex("func_ztotal", r"Z\left(x,y,T\right)=z_{g}\left(x,y,T\right)+z_{w}\left(x,y,T\right)+z_{i}\left(x,y,T\right)")
-
-# --- camera: horizon-level world rotation (column-major 3x3), yaw/elevation in degrees
-import math
+# --- viewport and camera -----------------------------------------------------
 def world_rotation(yaw, elev):
+    """Horizon-level column-major 3x3 (Desmos discards non-horizon-level rotations)."""
     cy, sy = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
     ce, se = math.cos(math.radians(elev)), math.sin(math.radians(elev))
     r0, r1, r2 = (-ce * sy, ce * cy, -se), (-cy, -sy, 0.0), (-se * sy, se * cy, ce)
     return [round(v, 6) for v in (r0[0], r1[0], r2[0], r0[1], r1[1], r2[1], r0[2], r1[2], r2[2])]
 
-s["graph"]["worldRotation3D"] = world_rotation(yaw=30, elev=18)
-vp.update(xmin=-6.8, xmax=6.8, ymin=-6.8, ymax=6.8, zmin=-4.8, zmax=4.8)
-s["graph"]["viewport"] = vp
+vp = dict(xmin=-6.8, xmax=6.8, ymin=-6.8, ymax=6.8, zmin=-4.8, zmax=4.8)
+s["graph"].update(viewport=vp, worldRotation3D=world_rotation(30, 18),
+                  showBox3D=False, showPlane3D=False, showAxis3D=False,
+                  axis3D=[False, False, False], showGrid=False)
 s["graph"]["__v12ViewportLatexStash"] = {k: str(v) for k, v in vp.items()}
 
-# --- organisation: title note + folders (ids of model expressions unchanged) --
-def folder(fid, title, collapsed):
-    return {"type": "folder", "id": fid, "title": title, "collapsed": collapsed}
-
+# --- organisation ------------------------------------------------------------
 groups = [
     ("f_controls", "Controls", False,
-     ["time_T", "time_Tm", "rad_R0", "mass_m1", "mass_m2", "amp_A", "scale_S", "wave_v", "wave_k",
-      "wave_sig", "eps"]),
+     ["time_T", "time_Tm", "rad_R0", "mass_m1", "mass_m2", "amp_A", "scale_S", "wave_v", "wave_Q", "eps"]),
+    ("f_phys", "Physical constants (see docs/MODEL.md)", True,
+     ["phys_qc", "phys_dp", "phys_gr", "phys_ap", "phys_ai", "phys_er", "phys_eta", "phys_tau",
+      "phys_Phic", "phys_Omc"]),
     ("f_model", "Model (kinematics and fields)", True,
      ["func_R", "func_phi", "coord_x1", "coord_y1", "coord_x2", "coord_y2", "dist_r1", "dist_r2",
-      "dist_rc", "func_zgrav", "func_ur", "func_zwave", "func_zinsp", "func_ztotal"]),
+      "dist_rc", "func_fm", "func_zgrav", "func_amp", "func_ur", "func_zwave", "func_ztotal"]),
     ("f_fabric", "Spacetime fabric", True, ["grid_list", "grid_lines_x", "grid_lines_y"]),
     ("f_optional", "Optional markers (hidden)", True,
      ["trail_obj1", "trail_obj2", "bh_point1", "bh_point2", "rg1", "rg2", "ring_bh1", "ring_bh2"]),
 ]
 title = {"type": "text", "id": "note_title",
          "text": ("Binary merger and spacetime ripple. A mathematical visualization inspired by general "
-                  "relativity (not an exact simulation). Press play on T: orbit, inspiral, merger at T_m, "
-                  "then an outward gravitational-wave-like ripple. S only exaggerates the display height.")}
-placed = set()
-new_list = [title]
+                  "relativity (not an exact simulation). Press play on T: inspiral (Peters decay, chirp), "
+                  "merger at T_m, then a quasinormal ringdown. S only exaggerates the display height.")}
+new_list, placed = [title], set()
 for fid, ftitle, collapsed, ids in groups:
-    new_list.append(folder(fid, ftitle, collapsed))
+    new_list.append({"type": "folder", "id": fid, "title": ftitle, "collapsed": collapsed})
     for i in ids:
-        if i in ex:
-            ex[i]["folderId"] = fid
-            new_list.append(ex[i])
-            placed.add(i)
+        ex[i]["folderId"] = fid
+        new_list.append(ex[i])
+        placed.add(i)
 for e in lst:
     if e["id"] not in placed and e.get("type") == "expression":
         new_list.append(e)
