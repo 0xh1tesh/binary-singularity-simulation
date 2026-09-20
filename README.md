@@ -1,6 +1,7 @@
 ## NOTE: THIS IS STILL UNDER HEAVY DEVELOPMENT
 
 > **Scientific note:** this is an interactive mathematical visualization *inspired by* general relativity, not an exact simulation. See [`docs/MODEL.md`](./docs/MODEL.md) for what is approximated.
+> 
 
 ##  How to Run in Desmos 3D
 
@@ -11,6 +12,7 @@
    Calc.setState(/* paste JSON here */);
    ```
 4. Press **Play** on the master time slider `T` to watch the complete evolution!
+<img width="991" height="937" alt="image" src="https://github.com/user-attachments/assets/7971649f-34df-451b-aae4-247ea16f2c76" />
 
 ---
 
