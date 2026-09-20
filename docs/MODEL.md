@@ -71,7 +71,7 @@ One retarded-time field, not separate pieces:
 
 ## Black-hole dots (Visualization only)
 
-Two small dots (size `1 + 3 M_i`) follow the wells, then one larger dot (size `1 + 3 (M1 + M2) f_m`) replaces them at `T_m + Delta_p`. Their height is `0.6 z_g + 0.7 + S A_w(T - 0.3/v_w)`: they follow only 60% of the well depth, so a deeper dip lifts the dot higher above the sheet, and they add the local wave amplitude, so ripples never swallow them. The dots float on top of the fabric and are not part of the physics.
+Two small dots (size `1 + 3 M_i`) follow the wells, then one larger dot (size `1 + 3 (M1 + M2) f_m`) replaces them at `T_m + Delta_p`. Their height is `0.6 z_g + 0.7 + S A_w(min(T, T_m) - 0.3/v_w)`: they follow only 60% of the well depth, so a deeper dip lifts the dot higher above the sheet, and they add the wave amplitude frozen at the merger (`min(T, T_m)`), so ripples never swallow them and the merged dot keeps a steady height instead of bouncing with the ringdown amplitude. The dots float on top of the fabric and are not part of the physics.
 
 ## Known limitations
 
