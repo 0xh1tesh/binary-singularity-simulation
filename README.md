@@ -45,22 +45,22 @@ The entire simulation is unified under a single master simulation clock $T$:
                      Z(x, y, T) = z_g + z_w
 ```
 
-### 1. Inspiral Separation & Frequency Chirp
-- **Separation Decay**:
-  $$R(T) = \begin{cases} R_0 \left(1 - \frac{T}{T_m}\right)^{0.38} & T < T_m \\ 0 & T \ge T_m \end{cases}$$
-- **Chirping Phase Accumulation**:
-  $$\phi_0(T) = \begin{cases} 1.2 T + 7\left(1 - \left(1 - \frac{T}{T_m}\right)^{0.5}\right) & T < T_m \\ 1.2 T_m + 7 & T \ge T_m \end{cases}$$
+### 1. Inspiral: Peters decay and Kepler phase
+- **Separation** (Peters, circular orbit): $R(T) = R_0\left(1 - T/\tau_p\right)^{1/4}$, with $\tau_p = T_m/(1 - q_c^4)$ so that contact ($R_c = 6GM/c^2$, the Schwarzschild ISCO, $q_c = R_c/R_0 = 0.6$) happens at $T_m$.
+- **Orbital phase** (Kepler + Peters, closed form): $\phi_0(T) = \dfrac{\Phi_c}{1 - q_c^{5/2}}\left(1 - (1 - T/\tau_p)^{5/8}\right)$, so the frequency chirps as $(1 - T/\tau_p)^{-3/8}$. $\Phi_c = 7.127/\eta$ rad is about 4.5 orbits for equal masses; GW150914 spent about 5 orbits in band.
+- After contact the objects plunge (`R -> 0` in $\Delta_p$) and the frequency ramps up toward the ringdown value.
 
-### 2. Spacetime Curvature Wells & Coalescence
-- **Two-Well Regularized Potential**:
-  $$z_g(x, y, T) = -\frac{A \cdot M_1}{r_1^{1.4}} - \frac{A \cdot M_2}{r_2^{1.4}}, \qquad r_i = \sqrt{|\mathbf{r} - \mathbf{r}_i(T)|^2 + e_0^2}$$
-- At merger $T = T_m$, $R(T) \to 0$, so both wells smoothly become a single, deeper remnant funnel. The steeper-than-Newtonian exponent 1.4 keeps the two wells visibly separate until they are close.
+### 2. Curvature wells and coalescence
+- **Two softened potential wells**, with the total mass reduced by the radiated fraction $f_m$ (GW150914: about 3 of 65 solar masses):
+  $$z_g = -f_m(T)\left(\frac{A M_1}{r_1^{1.4}} + \frac{A M_2}{r_2^{1.4}}\right), \qquad r_i = \sqrt{|\mathbf{r} - \mathbf{r}_i(T)|^2 + e_0^2}$$
+- Flamm's paraboloid (the Schwarzschild embedding diagram) is intentionally not used: it shows spatial curvature only and is not a gravity well.
 
-### 3. Outward Propagating Merger Wavefront
-- **Merger-generated, quadrupolar wave**, with retarded time $u_r = T - T_m - r_c/v_w$:
-  $$z_w = S \cdot E(u_r) \cdot \big(1 + 0.6\cos(2(\theta - \phi_0(T_m)))\big) \cdot \frac{\sin(-k v_w u_r)}{1 + 0.35\, r_c}, \quad E(u_r) = \begin{cases} e^{-u_r^2/0.5} & u_r < 0 \\ e^{-u_r/\sigma} & u_r \ge 0 \end{cases}$$
-- The fabric is calm during the orbit. At $T_m$ a strong ripple starts at the centre, travels outward at speed $v_w$ with four quadrupole lobes, and rings down behind the front.
-- **Approximation notice:** this is a phenomenological, visualization-oriented model, not a solution of the Einstein equations, and the displayed amplitudes are exaggerated (`A_display = A_model * S`). See [`docs/MODEL.md`](./docs/MODEL.md).
+### 3. One retarded-time gravitational-wave field
+- $u_r = T - r/v_w$. Inspiral, merger and ringdown are a single field:
+  $$z_w = S \cdot A_w(u_r) \cdot \frac{\cos\big(2\theta - 2\phi_0(u_r)\big)}{1 + 0.35\,r}$$
+- $A_w$: inspiral amplitude $\propto f^{2/3}$ (chirp scaling) growing to contact, a smooth rise to the merger peak, then a quasinormal ringdown $e^{-\gamma u}\cos(\omega u)$ with $\gamma = \omega/2Q$, $Q \approx 3.3$ (fundamental $l = m = 2$ mode, remnant spin near 0.69).
+- $\cos(2\theta - 2\phi_0)$ is the $m = 2$ mode: a two-armed spiral wound by the orbit that tightens as the binary chirps.
+- **Approximation notice:** this is a phenomenological visualization built on established formulas, not a solution of the Einstein equations; displayed heights are exaggerated ($A_{display} = A_{model} \cdot S$). Which parts are established, approximate or visual is listed in [`docs/MODEL.md`](./docs/MODEL.md), with sources in [`docs/REFERENCES.md`](./docs/REFERENCES.md).
 
 ### 4. Pure 3D Deformable Grid Representation
 - Spacetime is rendered through intersecting parametric space curves over coordinate array $L_g$:
@@ -71,18 +71,20 @@ The entire simulation is unified under a single master simulation clock $T$:
 
 ## 🎛️ Central Parameters
 
-| Parameter | Desmos Symbol | Default Value | Description |
+| Parameter | Desmos Symbol | Default | Description |
 |---|---|---|---|
-| `T` | $T$ | `1.0` | Master simulation time slider ($[0, 18]$) |
-| `T_m` | $T_m$ | `10.0` | Coalescence/merger epoch |
-| `R_0` | $R_0$ | `5.0` | Initial binary separation |
-| `M_1, M_2` | $M_1, M_2$ | `1.0, 1.0` | Masses of singularity 1 and 2 |
-| `A` | $A$ | `1.7` | Gravitational well depth scale |
+| `T` | $T$ | `1` | Master clock ($[0, 18]$) |
+| `T_m` | $T_m$ | `10` | Time of contact (merger) |
+| `R_0` | $R_0$ | `5` | Starting separation (10 M) in grid units |
+| `M_1, M_2` | $M_1, M_2$ | `1, 1` | Masses (well depth, barycentre, orbit count) |
+| `A` | $A$ | `1.7` | Well depth (visualization scale) |
 | `S` | $S$ | `2.2` | Ripple amplification (visualization only) |
-| `e_0` | $e_0$ | `0.8` | Softening constant (singularity regularization) |
-| `v_w` | $v_w$ | `1.6` | Ripple propagation speed |
-| `k` | $k$ | `2.2` | Spatial wavenumber |
-| `\sigma` | $\sigma$ | `1.6` | Ringdown decay time behind the wavefront |
+| `e_0` | $e_0$ | `0.8` | Well softening |
+| `v_w` | $v_w$ | `2.2` | Ripple propagation speed (display speed) |
+| `Q_f` | $Q_f$ | `3.3` | Ringdown quality factor |
+
+Physical constants (ISCO ratio, plunge time, radiated fraction, wave amplitudes) are in a collapsed folder in Desmos; see [`docs/PARAMETERS.md`](./docs/PARAMETERS.md).
+
 
 ---
 
@@ -96,13 +98,15 @@ binary-singularity-simulation/
 ├── .mcp.json                # Playwright MCP config for agent-driven testing
 ├── docs/
 │   ├── MODEL.md             # What is modelled, approximated, or visualization-only
-│   ├── EQUATIONS.md         # Expression-id registry
+│   ├── EQUATIONS.md         # Expression-id registry with tags
+│   ├── REFERENCES.md        # Sources for every formula and constant
 │   ├── PARAMETERS.md        # Slider reference
 │   ├── VISUALIZATION.md     # Fabric rendering and stage guide
 │   └── EXPERIMENTS.md       # Development log
 ├── scripts/
 │   ├── load_graph.js        # Browser-console loader (validates and reports errors)
 │   ├── build_state.py       # Patches desmos_state.json by expression id
+│   ├── make_mcp_loader.py   # Writes a Playwright-MCP snippet that loads the state
 │   └── render_checkpoints.js# Headless Playwright screenshots at T checkpoints
 └── assets/screenshots/
     ├── checkpoints/         # Current verified stages (T = 1, 7, 9.6, 10.4, 12, 15)
@@ -125,6 +129,7 @@ This loads the state into desmos.com/3d headlessly, reports expression errors, a
 
 - Detailed Mathematical Formulations: [`docs/MODEL.md`](./docs/MODEL.md)
 - Complete Desmos LaTeX Registry: [`docs/EQUATIONS.md`](./docs/EQUATIONS.md)
+- Sources and formula provenance: [`docs/REFERENCES.md`](./docs/REFERENCES.md)
 - Parameter Exploration Table: [`docs/PARAMETERS.md`](./docs/PARAMETERS.md)
 - Development & Experiment History: [`docs/EXPERIMENTS.md`](./docs/EXPERIMENTS.md)
 
